@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/imagePosterProfile"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textPosterName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="ChiBinh"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toEndOf="@id/imagePosterProfile"
+        app:layout_constraintEnd_toStartOf="@id/buttonOptions"
+        app:layout_constraintTop_toTopOf="@id/imagePosterProfile"
+        app:layout_constraintBottom_toBottomOf="@id/imagePosterProfile" />
+
+    <TextView
+        android:id="@+id/textPosterEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="s1234567@rmit.edu.vn"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintStart_toStartOf="@id/textPosterName"
+        app:layout_constraintEnd_toEndOf="@id/textPosterName"
+        app:layout_constraintTop_toBottomOf="@id/textPosterName" />
+
+    <ImageView
+        android:id="@+id/buttonOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/imagePosterProfile" />
+
+    <TextView
+        android:id="@+id/textPostContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Hello everyone, this is my first social media post."
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imagePosterProfile" />
+
+    <ImageView
+        android:id="@+id/imageLikeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textPostContent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/textLikeCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4"
+        app:layout_constraintStart_toEndOf="@id/imageLikeIcon"
+        app:layout_constraintTop_toTopOf="@id/imageLikeIcon"
+        app:layout_constraintBottom_toBottomOf="@id/imageLikeIcon" />
+
+    <TextView
+        android:id="@+id/textPostDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="December 4th, 2023 at 11:30"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/imageLikeIcon"
+        app:layout_constraintBottom_toBottomOf="@id/imageLikeIcon" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

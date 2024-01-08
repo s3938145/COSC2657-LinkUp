@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Link Up</string>
+    <string name="default_web_client_id">Y656524230597-2lrst6orc7akkb6el2n2193gm74p6jq4.apps.googleusercontent.com</string>
+    <string name="chat_message_hint">Type your message here</string>
+    <string name="send">Send</string>
+</resources>
