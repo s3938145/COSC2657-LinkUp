@@ -1,11 +1,5 @@
 package com.example.linkup.adapter;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
-import com.example.linkup.R;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
 import com.example.linkup.model.ChatMessage;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +18,13 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private List<ChatMessage> chatMessages;
+    private String currentUserId;
 
     public ChatAdapter() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+        }
         chatMessages = new ArrayList<>();
     }
 
@@ -42,7 +43,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         ChatMessage message = chatMessages.get(position);
-        holder.bind(message);
+        boolean isCurrentUser = message.getSenderId().equals(currentUserId);
+        holder.bind(message, isCurrentUser);
     }
 
     @Override
@@ -52,15 +54,26 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
 
-        TextView messageTextView;
+        TextView messageTextViewUser;
+        TextView messageTextViewOther;
 
         ChatViewHolder(View itemView) {
             super(itemView);
-            messageTextView = itemView.findViewById(R.id.text_message);
+            messageTextViewUser = itemView.findViewById(R.id.text_message_user);
+            messageTextViewOther = itemView.findViewById(R.id.text_message_other);
         }
 
-        void bind(ChatMessage message) {
-            messageTextView.setText(message.getMessage());
+        void bind(ChatMessage message, boolean isCurrentUser) {
+            if (isCurrentUser) {
+                messageTextViewUser.setText(message.getMessage());
+                messageTextViewUser.setVisibility(View.VISIBLE);
+                messageTextViewOther.setVisibility(View.GONE);
+            } else {
+                messageTextViewOther.setText(message.getMessage());
+                messageTextViewOther.setVisibility(View.VISIBLE);
+                messageTextViewUser.setVisibility(View.GONE);
+            }
         }
     }
 }
+

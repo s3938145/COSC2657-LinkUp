@@ -1,39 +1,37 @@
 package com.example.linkup.repository;
 
 import com.example.linkup.model.Post;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.linkup.service.FirebaseService;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostRepository {
 
-    private DatabaseReference databaseReference;
-    private String currentUserId;
+    private final FirebaseService firebaseService;
+    private final DatabaseReference postsReference;
+    private final String currentUserId;
 
-    public PostRepository() {
-        // Initialize Firebase Realtime Database
-        databaseReference = FirebaseDatabase.getInstance().getReference("posts");
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public PostRepository(FirebaseService firebaseService) {
+        this.firebaseService = firebaseService;
+        this.postsReference = firebaseService.getPostsReference();
+        this.currentUserId = firebaseService.getCurrentUser().getUid();
     }
 
     public void addPost(Post post, final DataStatus dataStatus) {
-        // Add a new post to Realtime Database
-        String postId = databaseReference.push().getKey();
+        String postId = postsReference.push().getKey();
         Post newPost = new Post(postId, currentUserId, post.getPostContent(), System.currentTimeMillis(), post.getPostLikes());
-        databaseReference.child(postId).setValue(newPost)
+        postsReference.child(postId).setValue(newPost)
                 .addOnSuccessListener(aVoid -> dataStatus.DataIsInserted())
                 .addOnFailureListener(e -> dataStatus.DataOperationFailed(e));
     }
 
     public void getAllPosts(final DataStatus dataStatus, long lastLoadedPostDate, int limit) {
-        // Implement lazy loading by loading posts in batches
-        databaseReference.orderByChild("postDate").endAt(lastLoadedPostDate).limitToLast(limit)
+        postsReference.orderByChild("postDate").endAt(lastLoadedPostDate).limitToLast(limit)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -53,15 +51,13 @@ public class PostRepository {
     }
 
     public void updatePost(Post post, final DataStatus dataStatus) {
-        // Update post information in Realtime Database
-        databaseReference.child(post.getPostId()).setValue(post)
+        postsReference.child(post.getPostId()).setValue(post)
                 .addOnSuccessListener(aVoid -> dataStatus.DataIsUpdated())
                 .addOnFailureListener(e -> dataStatus.DataOperationFailed(e));
     }
 
     public void deletePost(String postId, final DataStatus dataStatus) {
-        // Delete post from Realtime Database
-        databaseReference.child(postId).removeValue()
+        postsReference.child(postId).removeValue()
                 .addOnSuccessListener(aVoid -> dataStatus.DataIsDeleted())
                 .addOnFailureListener(e -> dataStatus.DataOperationFailed(e));
     }
@@ -75,5 +71,6 @@ public class PostRepository {
         void DataOperationFailed(Exception e);
     }
 }
+
 
 

@@ -1,6 +1,7 @@
 package com.example.linkup.repository;
 
 import com.example.linkup.model.User;
+import com.example.linkup.service.FirebaseService;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -11,120 +12,42 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.linkup.model.User;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+
 public class UserRepository {
 
-    private FirebaseFirestore firestore;
+    private final FirebaseService firebaseService;
 
-    public UserRepository() {
-        // Initialize Firestore
-        firestore = FirebaseFirestore.getInstance();
+    public UserRepository(FirebaseService firebaseService) {
+        this.firebaseService = firebaseService;
     }
 
-    public void addUser(User user, final DataStatus dataStatus) {
-        // If userId is null or empty, Firestore will auto-generate it
-        String userId = (user.getUserId() == null || user.getUserId().isEmpty()) ? firestore.collection("users").document().getId() : user.getUserId();
-        user.setUserId(userId);
-
-        firestore.collection("users").document(userId).set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        dataStatus.DataIsInserted();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        dataStatus.DataInsertFailed(e);
-                    }
-                });
+    public Task<Void> addUser(User user) {
+        return firebaseService.getFirestore().collection("users").document(user.getUserId()).set(user);
     }
 
-    public void getUser(String userId, final DataStatus dataStatus) {
-        // Retrieve user information from Firestore
-        firestore.collection("users").document(userId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        User user = documentSnapshot.toObject(User.class);
-                        dataStatus.DataIsLoaded(user);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        // Handle the error
-                    }
-                });
+    public Task<DocumentSnapshot> getUser(String userId) {
+        return firebaseService.getFirestore().collection("users").document(userId).get();
     }
 
-    public void updateUser(User user, final DataStatus dataStatus) {
-        // Update user information in Firestore
-        firestore.collection("users").document(user.getUserId()).set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        dataStatus.DataIsUpdated();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        // Handle the error
-                    }
-                });
+    public Task<Void> updateUser(User user) {
+        return firebaseService.getFirestore().collection("users").document(user.getUserId()).set(user);
     }
 
-    public void deleteUser(String userId, final DataStatus dataStatus) {
-        // Delete user from Firestore
-        firestore.collection("users").document(userId).delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        dataStatus.DataIsDeleted();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        // Handle the error
-                    }
-                });
+    public Task<Void> deleteUser(String userId) {
+        return firebaseService.getFirestore().collection("users").document(userId).delete();
     }
 
-    public void addFriendToUser(String userId, String friendId, final DataStatus dataStatus) {
-        DocumentReference userRef = firestore.collection("users").document(userId);
-
-        firestore.runTransaction(transaction -> {
-                    DocumentSnapshot snapshot = transaction.get(userRef);
-                    User user = snapshot.toObject(User.class);
-                    if (user != null) {
-                        List<String> friendList = user.getFriendList();
-                        if (friendList == null) {
-                            friendList = new ArrayList<>();
-                        }
-                        if (!friendList.contains(friendId)) {
-                            friendList.add(friendId);
-                            user.setFriendList(friendList);
-                            transaction.set(userRef, user);
-                        } else {
-                            // Friend already in list, handle this case if needed
-                        }
-                    }
-                    return null;
-                }).addOnSuccessListener(aVoid -> dataStatus.DataIsUpdated())
-                .addOnFailureListener(e -> dataStatus.DataUpdateFailed(e));
+    public Task<Void> addFriendToUser(String userId, String friendId) {
+        return firebaseService.getFirestore().collection("users").document(userId)
+                .update("friendList", FieldValue.arrayUnion(friendId));
     }
 
-    // Interface for callback
-    public interface DataStatus {
-        void DataIsLoaded(User user);
-        void DataIsInserted();
-        void DataIsUpdated();
-        void DataIsDeleted();
-        void DataInsertFailed(Exception e);
-        void DataUpdateFailed(Exception e);
-    }
+    // Additional repository methods as needed...
 }
+
 
 
