@@ -19,6 +19,15 @@ import com.example.linkup.R;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.example.linkup.model.Post;
+import com.example.linkup.repository.PostRepository.DataStatus;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class FirebaseService {
 
     private final FirebaseAuth firebaseAuth;
@@ -38,11 +47,10 @@ public class FirebaseService {
                 .requestIdToken(context.getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
         googleSignInClient = GoogleSignIn.getClient(context, gso);
     }
 
-    // Firebase Authentication with Email and Password
+    // Firebase Authentication methods
     public Task<AuthResult> signUpUser(String email, String password) {
         return firebaseAuth.createUserWithEmailAndPassword(email, password);
     }
@@ -53,10 +61,9 @@ public class FirebaseService {
 
     public void signOutUser() {
         firebaseAuth.signOut();
-        googleSignInClient.signOut(); // To sign out from Google Sign-In if used
+        googleSignInClient.signOut(); // Sign out from Google Sign-In if used
     }
 
-    // Firebase Google Authentication
     public GoogleSignInClient getGoogleSignInClient() {
         return googleSignInClient;
     }
@@ -66,17 +73,16 @@ public class FirebaseService {
         return firebaseAuth.signInWithCredential(credential);
     }
 
-    // Get the currently signed-in user (if any)
     public FirebaseUser getCurrentUser() {
         return firebaseAuth.getCurrentUser();
     }
 
-    // Firestore operations
+    // Firestore methods
     public FirebaseFirestore getFirestore() {
         return firestore;
     }
 
-    // Firebase Storage operations
+    // Firebase Storage methods
     public Task<Uri> uploadImageToStorage(String path, byte[] imageData) {
         StorageReference imageRef = firebaseStorage.getReference(path);
         return imageRef.putBytes(imageData).continueWithTask(task -> {
@@ -87,13 +93,51 @@ public class FirebaseService {
         });
     }
 
-    // Realtime Database operations
-    public DatabaseReference getPostsReference() {
-        return postsReference;
+    // Realtime Database operations for posts
+    public void addPostToDatabase(Post post, final DataStatus dataStatus) {
+        String postId = postsReference.push().getKey();
+        // Assuming Post class has a constructor or a static method to create a new instance with postId
+        Post newPost = new Post(postId, post.getPosterId(), post.getPostContent(), System.currentTimeMillis(), post.getPostLikes());
+        postsReference.child(postId).setValue(newPost)
+                .addOnSuccessListener(aVoid -> dataStatus.DataIsInserted())
+                .addOnFailureListener(dataStatus::DataOperationFailed);
+    }
+
+    public void loadPostsFromDatabase(final DataStatus dataStatus, long lastLoadedPostDate, int limit) {
+        postsReference.orderByChild("postDate").endAt(lastLoadedPostDate).limitToLast(limit)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        List<Post> postList = new ArrayList<>();
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                            Post post = postSnapshot.getValue(Post.class);
+                            postList.add(0, post);
+                        }
+                        dataStatus.DataIsLoaded(postList);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        dataStatus.DataOperationFailed(databaseError.toException());
+                    }
+                });
+    }
+
+    public void updatePostInDatabase(Post post, final DataStatus dataStatus) {
+        postsReference.child(post.getPostId()).setValue(post)
+                .addOnSuccessListener(aVoid -> dataStatus.DataIsUpdated())
+                .addOnFailureListener(dataStatus::DataOperationFailed);
+    }
+
+    public void deletePostFromDatabase(String postId, final DataStatus dataStatus) {
+        postsReference.child(postId).removeValue()
+                .addOnSuccessListener(aVoid -> dataStatus.DataIsDeleted())
+                .addOnFailureListener(dataStatus::DataOperationFailed);
     }
 
     // ... other Firebase operations as needed ...
 }
+
 
 
 

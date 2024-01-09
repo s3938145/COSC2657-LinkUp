@@ -1,4 +1,6 @@
 package com.example.linkup.viewModel;
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,14 +18,15 @@ public class PostViewModel extends ViewModel {
     private long lastLoadedPostDate = Long.MAX_VALUE;
     private static final int POST_LOAD_LIMIT = 10; // Set your desired load limit
 
-    public PostViewModel(FirebaseService firebaseService) {
+    public PostViewModel(Application application) {
+        FirebaseService firebaseService = new FirebaseService(application.getApplicationContext());
         postRepository = new PostRepository(firebaseService);
         postsLiveData = new MutableLiveData<>();
         errorMessage = new MutableLiveData<>();
         loadPosts();
     }
 
-    private void loadPosts() {
+    public void loadPosts() {
         postRepository.getAllPosts(new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
@@ -152,6 +155,7 @@ public class PostViewModel extends ViewModel {
 
     // Additional methods as needed...
 }
+
 
 
 

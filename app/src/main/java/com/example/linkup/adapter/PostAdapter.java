@@ -15,7 +15,6 @@ import com.example.linkup.model.Post;
 import com.example.linkup.model.User;
 import com.example.linkup.viewModel.UserViewModel;
 import com.squareup.picasso.Picasso;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,22 +61,27 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         TextView textPostContent;
         TextView textPostDate;
         TextView textLikeCount;
-        TextView textPosterName;
-        TextView textPosterEmail;
-        ImageView imagePosterProfile;
         ImageView imageLikeIcon;
         ImageView buttonOptions;
+
+        // Views for user profile header
+        ImageView imagePosterProfile;
+        TextView textPosterName;
+        TextView textPosterEmail;
 
         public PostViewHolder(View itemView) {
             super(itemView);
             textPostContent = itemView.findViewById(R.id.textPostContent);
             textPostDate = itemView.findViewById(R.id.textPostDate);
             textLikeCount = itemView.findViewById(R.id.textLikeCount);
-            textPosterName = itemView.findViewById(R.id.textPosterName);
-            textPosterEmail = itemView.findViewById(R.id.textPosterEmail);
-            imagePosterProfile = itemView.findViewById(R.id.imagePosterProfile);
             imageLikeIcon = itemView.findViewById(R.id.imageLikeIcon);
             buttonOptions = itemView.findViewById(R.id.buttonOptions);
+
+            // Inflate the user profile header layout and get the views
+            View userProfileHeader = LayoutInflater.from(itemView.getContext()).inflate(R.layout.user_profile_header, null, false);
+            imagePosterProfile = userProfileHeader.findViewById(R.id.imageViewProfile);
+            textPosterName = userProfileHeader.findViewById(R.id.textViewUserName);
+            textPosterEmail = userProfileHeader.findViewById(R.id.textViewUserEmail);
         }
 
         void bind(Post post) {
@@ -85,24 +89,28 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             textPostDate.setText(dateFormat.format(post.getPostDate()));
             textLikeCount.setText(String.valueOf(post.getPostLikes()));
 
-            // Observe user details based on posterId
+            // Fetch user details for the current post
+            userViewModel.getUser(post.getPosterId());
             userViewModel.getUserLiveData().observe(lifecycleOwner, new Observer<User>() {
                 @Override
                 public void onChanged(User user) {
                     if (user != null && user.getUserId().equals(post.getPosterId())) {
-                        textPosterName.setText(user.getFullName());
-                        textPosterEmail.setText(user.getEmail());
-                        if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                            Picasso.get().load(user.getProfileImage()).into(imagePosterProfile);
-                        }
+                        updateUserInfo(user);
                     }
                 }
             });
-            // Fetch user details for the current post
-            userViewModel.getUser(post.getPosterId());
+        }
+
+        private void updateUserInfo(User user) {
+            textPosterName.setText(user.getFullName());
+            textPosterEmail.setText(user.getEmail());
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                Picasso.get().load(user.getProfileImage()).into(imagePosterProfile);
+            }
         }
     }
 }
+
 
 
 
