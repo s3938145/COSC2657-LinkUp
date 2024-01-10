@@ -139,6 +139,8 @@ public class LoginActivity extends AppCompatActivity {
                                 // Google Sign In successful, update UI accordingly
                                 showToast("Google Sign In successful");
                                 // You can add additional logic here, such as navigating to another activity
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
                             } else {
                                 // If sign in fails, display a message to the user.
                                 showToast("Google Sign In failed");
