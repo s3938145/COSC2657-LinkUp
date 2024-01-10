@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Post;
+import com.example.linkup.service.FirebaseService;
+import com.example.linkup.utility.NavigationHelper;
 import com.example.linkup.utility.UserProfileHeaderHandler;
 import com.example.linkup.viewModel.PostViewModel;
 import com.example.linkup.viewModel.UserViewModel;
@@ -25,6 +28,7 @@ public class CreatePostFragment extends Fragment {
     private UserViewModel userViewModel;
     private PostViewModel postViewModel;
     private EditText editTextPostContent;
+    private FirebaseService firebaseService;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -36,6 +40,9 @@ public class CreatePostFragment extends Fragment {
         Button buttonPost = view.findViewById(R.id.buttonPost);
         Button buttonCancel = view.findViewById(R.id.buttonCancel);
 
+        // Initialize FirebaseService
+        firebaseService = new FirebaseService(getContext());
+
         // Initialize ViewModels
         postViewModel = new ViewModelProvider(requireActivity()).get(PostViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
@@ -43,11 +50,18 @@ public class CreatePostFragment extends Fragment {
         // Find the included user profile header layout
         View userProfileHeader = view.findViewById(R.id.user_profile_header);
 
-        // Update user profile header views
-        UserProfileHeaderHandler.updateUserProfileViews(userViewModel, userProfileHeader, getViewLifecycleOwner());
+        // Get currently sign in user's ID
+        String currentUserId = firebaseService.getCurrentUser() != null ? firebaseService.getCurrentUser().getUid() : null;
 
-        buttonPost.setOnClickListener(v -> createPost());
-        buttonCancel.setOnClickListener(v -> cancelPost());
+        // Update user profile header views
+        UserProfileHeaderHandler.updateUserProfileViews(userViewModel, currentUserId ,userProfileHeader ,getViewLifecycleOwner());
+
+        buttonPost.setOnClickListener(v -> {
+            createPost();
+        });
+        buttonCancel.setOnClickListener(v -> {
+            cancelPost();
+        });
 
         return view;
     }
@@ -56,14 +70,16 @@ public class CreatePostFragment extends Fragment {
         String content = editTextPostContent.getText().toString().trim();
         if (!content.isEmpty()) {
             // Creating a post with current time as date and 0 likes
-            Post newPost = new Post(null, FirebaseAuth.getInstance().getCurrentUser().getUid(), content, System.currentTimeMillis(), 0);
-            postViewModel.addPost(newPost);
+            postViewModel.addPost(content);
 
             // Clear input and hide keyboard
             editTextPostContent.setText("");
             hideKeyboard();
 
-            // Optionally navigate back or show a success message
+            // Display a toast message
+            Toast.makeText(getContext(), "Post created successfully", Toast.LENGTH_SHORT).show();
+
+            NavigationHelper.navigateToFragment(requireView(), R.id.newsFeedFragment);
         } else {
             editTextPostContent.setError("Please enter some text to post.");
         }
@@ -74,7 +90,7 @@ public class CreatePostFragment extends Fragment {
         editTextPostContent.setText("");
         hideKeyboard();
 
-        // Optionally navigate back or clear any status messages
+        NavigationHelper.navigateToFragment(requireView(), R.id.newsFeedFragment);
     }
 
     private void hideKeyboard() {

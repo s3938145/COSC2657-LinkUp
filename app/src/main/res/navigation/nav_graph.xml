@@ -1,0 +1,17 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/newsFeedFragment">
+
+    <fragment
+        android:id="@+id/newsFeedFragment"
+        android:name="com.example.linkup.view.fragments.NewsFeedFragment"
+        android:label="news_feed_fragment" />
+
+    <fragment
+        android:id="@+id/createPostFragment"
+        android:name="com.example.linkup.view.fragments.CreatePostFragment"
+        android:label="create_post_fragment" />
+
+    <!-- Define other fragments here if needed -->
+</navigation>

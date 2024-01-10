@@ -12,6 +12,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -97,7 +99,7 @@ public class FirebaseService {
     public void addPostToDatabase(Post post, final DataStatus dataStatus) {
         String postId = postsReference.push().getKey();
         // Assuming Post class has a constructor or a static method to create a new instance with postId
-        Post newPost = new Post(postId, post.getPosterId(), post.getPostContent(), System.currentTimeMillis(), post.getPostLikes());
+        Post newPost = new Post(postId, post.getPosterId(), post.getPostContent(), System.currentTimeMillis(), post.getLikedByUsers());
         postsReference.child(postId).setValue(newPost)
                 .addOnSuccessListener(aVoid -> dataStatus.DataIsInserted())
                 .addOnFailureListener(dataStatus::DataOperationFailed);
@@ -135,6 +137,38 @@ public class FirebaseService {
                 .addOnFailureListener(dataStatus::DataOperationFailed);
     }
 
+    public void toggleLikeOnPost(String postId, String userId, final DataStatus dataStatus) {
+        DatabaseReference postRef = postsReference.child(postId);
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Post p = mutableData.getValue(Post.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                List<String> likedByUsers = p.getLikedByUsers() != null ? new ArrayList<>(p.getLikedByUsers()) : new ArrayList<>();
+                if (likedByUsers.contains(userId)) {
+                    likedByUsers.remove(userId);
+                } else {
+                    likedByUsers.add(userId);
+                }
+
+                Post updatedPost = new Post(p.getPostId(), p.getPosterId(), p.getPostContent(), p.getPostDate(), likedByUsers);
+                mutableData.setValue(updatedPost);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    dataStatus.DataOperationFailed(databaseError.toException());
+                } else {
+                    dataStatus.DataIsUpdated();
+                }
+            }
+        });
+    }
     // ... other Firebase operations as needed ...
 }
 

@@ -2,31 +2,29 @@ package com.example.linkup.viewModel;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.linkup.model.User;
 import com.example.linkup.repository.UserRepository;
+import com.example.linkup.service.FirebaseService;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
 
 import java.util.List;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-import com.example.linkup.model.User;
-import com.example.linkup.service.FirebaseService;
-import com.google.firebase.firestore.DocumentSnapshot;
-
-public class UserViewModel extends ViewModel {
+public class UserViewModel extends AndroidViewModel {
 
     private UserRepository userRepository;
     private MutableLiveData<User> userLiveData;
     private MutableLiveData<List<User>> usersLiveData;
     private MutableLiveData<String> errorMessage;
 
-    public UserViewModel(Application application) {
-        FirebaseService firebaseService = new FirebaseService(application.getApplicationContext()); // Pass context if needed
+    public UserViewModel(@NonNull Application application) {
+        super(application); // Call the super constructor with the application context
+        FirebaseService firebaseService = new FirebaseService(application.getApplicationContext());
         userRepository = new UserRepository(firebaseService);
         userLiveData = new MutableLiveData<>();
         usersLiveData = new MutableLiveData<>();
@@ -37,18 +35,24 @@ public class UserViewModel extends ViewModel {
         return userLiveData;
     }
 
-    public LiveData<List<User>> getUsersLiveData() {
-        return usersLiveData;
-    }
-
     public LiveData<String> getErrorMessage() {
         return errorMessage;
     }
 
     public void addUser(User user) {
         userRepository.addUser(user)
-                .addOnSuccessListener(aVoid -> userLiveData.postValue(user))
-                .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        userLiveData.postValue(user);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        errorMessage.postValue(e.getMessage());
+                    }
+                });
     }
 
     public void getUser(String userId) {
@@ -68,17 +72,23 @@ public class UserViewModel extends ViewModel {
 
     public void deleteUser(String userId) {
         userRepository.deleteUser(userId)
-                .addOnSuccessListener(aVoid -> { /* Handle deletion success */ })
+                .addOnSuccessListener(aVoid -> {
+                    // You can add logic here for what happens after a user is successfully deleted
+                })
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
 
     public void addFriend(String userId, String friendId) {
         userRepository.addFriendToUser(userId, friendId)
-                .addOnSuccessListener(aVoid -> { /* Handle friend addition success */ })
+                .addOnSuccessListener(aVoid -> {
+                    // You can add logic here for what happens after a friend is successfully added
+                })
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
 
-    // Additional methods as needed...
+    // Additional methods and logic as needed...
 }
+
+
 
 

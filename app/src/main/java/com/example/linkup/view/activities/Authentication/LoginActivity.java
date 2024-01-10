@@ -1,4 +1,4 @@
-package com.example.linkup.Authentication;
+package com.example.linkup.view.activities.Authentication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.example.linkup.R;
 import com.example.linkup.service.FirebaseService;
+import com.example.linkup.view.activities.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -102,7 +103,9 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in successful
                         showToast("Email Sign In successful");
-                        // Add logic for successful sign-in (e.g., navigate to another activity)
+                        // Intent to start MainActivity
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
                     } else {
                         // If sign in fails, display a message to the user.
                         showToast("Invalid email or password");

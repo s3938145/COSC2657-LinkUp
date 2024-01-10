@@ -1,24 +1,25 @@
 package com.example.linkup.viewModel;
-import android.app.Application;
 
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import com.example.linkup.model.Post;
 import com.example.linkup.repository.PostRepository;
 import com.example.linkup.service.FirebaseService;
-
 import java.util.List;
 
-public class PostViewModel extends ViewModel {
+public class PostViewModel extends AndroidViewModel {
 
     private final PostRepository postRepository;
     private final MutableLiveData<List<Post>> postsLiveData;
     private final MutableLiveData<String> errorMessage;
     private long lastLoadedPostDate = Long.MAX_VALUE;
-    private static final int POST_LOAD_LIMIT = 10; // Set your desired load limit
+    private static final int POST_LOAD_LIMIT = 10;
 
-    public PostViewModel(Application application) {
+    public PostViewModel(@NonNull Application application) {
+        super(application);
         FirebaseService firebaseService = new FirebaseService(application.getApplicationContext());
         postRepository = new PostRepository(firebaseService);
         postsLiveData = new MutableLiveData<>();
@@ -30,7 +31,7 @@ public class PostViewModel extends ViewModel {
         postRepository.getAllPosts(new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                if (!posts.isEmpty()) {
+                if (posts.isEmpty()) {
                     lastLoadedPostDate = posts.get(posts.size() - 1).getPostDate();
                 }
                 postsLiveData.postValue(posts);
@@ -38,17 +39,17 @@ public class PostViewModel extends ViewModel {
 
             @Override
             public void DataIsInserted() {
-                // Not used here
+                // Not used in this context
             }
 
             @Override
             public void DataIsUpdated() {
-                // Not used here
+                // Not used in this context
             }
 
             @Override
             public void DataIsDeleted() {
-                // Not used here
+                // Not used in this context
             }
 
             @Override
@@ -58,32 +59,34 @@ public class PostViewModel extends ViewModel {
         }, lastLoadedPostDate, POST_LOAD_LIMIT);
     }
 
-    public void addPost(Post post) {
-        postRepository.addPost(post, new PostRepository.DataStatus() {
+    public void addPost(String postContent) {
+        postRepository.addPost(postContent, new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                // Not used here
+
             }
 
             @Override
             public void DataIsInserted() {
-                loadPosts(); // Reload the posts after a new post is added
+                loadPosts();
             }
 
             @Override
             public void DataIsUpdated() {
-                // Not used here
+
             }
 
             @Override
             public void DataIsDeleted() {
-                // Not used here
+
             }
 
             @Override
             public void DataOperationFailed(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
+
+            // Implement other DataStatus methods as necessary
         });
     }
 
@@ -91,28 +94,30 @@ public class PostViewModel extends ViewModel {
         postRepository.updatePost(post, new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                // Not used here
+
             }
 
             @Override
             public void DataIsInserted() {
-                // Not used here
+
             }
 
             @Override
             public void DataIsUpdated() {
-                loadPosts(); // Reload the posts after a post is updated
+                loadPosts();
             }
 
             @Override
             public void DataIsDeleted() {
-                // Not used here
+
             }
 
             @Override
             public void DataOperationFailed(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
+
+            // Implement other DataStatus methods as necessary
         });
     }
 
@@ -120,28 +125,60 @@ public class PostViewModel extends ViewModel {
         postRepository.deletePost(postId, new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                // Not used here
+
             }
 
             @Override
             public void DataIsInserted() {
-                // Not used here
+
             }
 
             @Override
             public void DataIsUpdated() {
-                // Not used here
+
             }
 
             @Override
             public void DataIsDeleted() {
-                loadPosts(); // Reload the posts after a post is deleted
+                loadPosts();
             }
 
             @Override
             public void DataOperationFailed(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
+
+            // Implement other DataStatus methods as necessary
+        });
+    }
+
+    public void toggleLikeOnPost(String postId) {
+        postRepository.toggleLikeOnPost(postId, new PostRepository.DataStatus() {
+            @Override
+            public void DataIsLoaded(List<Post> posts) {
+
+            }
+
+            @Override
+            public void DataIsInserted() {
+
+            }
+
+            @Override
+            public void DataIsUpdated() {
+                loadPosts();
+            }
+
+            @Override
+            public void DataIsDeleted() {
+
+            }
+
+            @Override
+            public void DataOperationFailed(Exception e) {
+                errorMessage.postValue(e.getMessage());
+            }
+
         });
     }
 
@@ -155,6 +192,8 @@ public class PostViewModel extends ViewModel {
 
     // Additional methods as needed...
 }
+
+
 
 
 

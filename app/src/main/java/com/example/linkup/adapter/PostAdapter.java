@@ -7,16 +7,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Post;
-import com.example.linkup.model.User;
+import com.example.linkup.viewModel.PostViewModel;
 import com.example.linkup.viewModel.UserViewModel;
 import com.squareup.picasso.Picasso;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,13 +25,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     private List<Post> postList;
     private UserViewModel userViewModel;
+    private PostViewModel postViewModel;
     private LifecycleOwner lifecycleOwner;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy 'at' h:mm a", Locale.getDefault());
 
-    public PostAdapter(UserViewModel userViewModel, LifecycleOwner lifecycleOwner) {
+    public PostAdapter(UserViewModel userViewModel, LifecycleOwner lifecycleOwner, PostViewModel postViewModel) {
         this.postList = new ArrayList<>();
         this.userViewModel = userViewModel;
         this.lifecycleOwner = lifecycleOwner;
+        this.postViewModel = postViewModel;
     }
 
     @NonNull
@@ -53,7 +56,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     public void setPostList(List<Post> newPostList) {
         this.postList = newPostList;
-        notifyDataSetChanged(); // Notify the adapter that the data has changed
+        notifyDataSetChanged();
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
@@ -64,11 +67,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         ImageView imageLikeIcon;
         ImageView buttonOptions;
 
-        // Views for user profile header
-        ImageView imagePosterProfile;
-        TextView textPosterName;
-        TextView textPosterEmail;
-
         public PostViewHolder(View itemView) {
             super(itemView);
             textPostContent = itemView.findViewById(R.id.textPostContent);
@@ -77,39 +75,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             imageLikeIcon = itemView.findViewById(R.id.imageLikeIcon);
             buttonOptions = itemView.findViewById(R.id.buttonOptions);
 
-            // Inflate the user profile header layout and get the views
-            View userProfileHeader = LayoutInflater.from(itemView.getContext()).inflate(R.layout.user_profile_header, null, false);
-            imagePosterProfile = userProfileHeader.findViewById(R.id.imageViewProfile);
-            textPosterName = userProfileHeader.findViewById(R.id.textViewUserName);
-            textPosterEmail = userProfileHeader.findViewById(R.id.textViewUserEmail);
+            imageLikeIcon.setOnClickListener(v -> onLikeClicked(getAdapterPosition()));
         }
 
         void bind(Post post) {
             textPostContent.setText(post.getPostContent());
-            textPostDate.setText(dateFormat.format(post.getPostDate()));
+            textPostDate.setText(dateFormat.format(new Date(post.getPostDate())));
             textLikeCount.setText(String.valueOf(post.getPostLikes()));
 
-            // Fetch user details for the current post
             userViewModel.getUser(post.getPosterId());
-            userViewModel.getUserLiveData().observe(lifecycleOwner, new Observer<User>() {
-                @Override
-                public void onChanged(User user) {
-                    if (user != null && user.getUserId().equals(post.getPosterId())) {
-                        updateUserInfo(user);
-                    }
+            userViewModel.getUserLiveData().observe(lifecycleOwner, user -> {
+                if (user != null && user.getUserId().equals(post.getPosterId())) {
+                    // Update user info in post
+
                 }
             });
         }
 
-        private void updateUserInfo(User user) {
-            textPosterName.setText(user.getFullName());
-            textPosterEmail.setText(user.getEmail());
-            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                Picasso.get().load(user.getProfileImage()).into(imagePosterProfile);
+        private void onLikeClicked(int position) {
+            if (position != RecyclerView.NO_POSITION) {
+                Post post = postList.get(position);
+                postViewModel.toggleLikeOnPost(post.getPostId());
             }
         }
     }
 }
+
+
 
 
 

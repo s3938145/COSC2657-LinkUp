@@ -31,30 +31,26 @@ public class NewsFeedFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize the ViewModels
-        // If PostViewModel now requires FirebaseService, you need to adjust this initialization
-        postViewModel = new ViewModelProvider(this,
-                new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication()))
-                .get(PostViewModel.class);
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-
-        postAdapter = new PostAdapter(userViewModel, this);
-        recyclerView.setAdapter(postAdapter);
-
-        postViewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
-            postAdapter.setPostList(posts);
-        });
-
-        // Load posts
-        postViewModel.loadPosts();
-
+        // ViewModel initialization moved to onViewCreated
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Additional operations, if needed
+
+        ViewModelProvider.AndroidViewModelFactory factory = ViewModelProvider.AndroidViewModelFactory.getInstance(getActivity().getApplication());
+        postViewModel = new ViewModelProvider(requireActivity(), factory).get(PostViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity(), factory).get(UserViewModel.class);
+
+        postAdapter = new PostAdapter(userViewModel, getViewLifecycleOwner(), postViewModel);
+        recyclerView.setAdapter(postAdapter);
+
+        postViewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
+            postAdapter.setPostList(posts);
+        });
+
+        postViewModel.loadPosts();
     }
 }
 

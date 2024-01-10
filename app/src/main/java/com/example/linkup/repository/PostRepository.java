@@ -2,15 +2,9 @@ package com.example.linkup.repository;
 
 import com.example.linkup.model.Post;
 import com.example.linkup.service.FirebaseService;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.example.linkup.model.Post;
 
 public class PostRepository {
 
@@ -22,9 +16,10 @@ public class PostRepository {
         this.currentUserId = firebaseService.getCurrentUser().getUid();
     }
 
-    public void addPost(Post post, final DataStatus dataStatus) {
+    public void addPost(String postContent, final DataStatus dataStatus) {
+        List likedByUser = new ArrayList<String>();
         // The postId will be generated and set inside the FirebaseService
-        Post newPost = new Post(null, currentUserId, post.getPostContent(), System.currentTimeMillis(), post.getPostLikes());
+        Post newPost = new Post(null, currentUserId, postContent, System.currentTimeMillis(), likedByUser);
         firebaseService.addPostToDatabase(newPost, dataStatus);
     }
 
@@ -38,6 +33,10 @@ public class PostRepository {
 
     public void deletePost(String postId, final DataStatus dataStatus) {
         firebaseService.deletePostFromDatabase(postId, dataStatus);
+    }
+
+    public void toggleLikeOnPost(String postId, final DataStatus dataStatus) {
+        firebaseService.toggleLikeOnPost(postId, currentUserId,dataStatus);
     }
 
     // Interface for callback

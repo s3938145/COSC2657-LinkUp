@@ -1,4 +1,4 @@
-package com.example.linkup.Authentication;
+package com.example.linkup.view.activities.Authentication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.example.linkup.R;
 import com.example.linkup.model.User;
 import com.example.linkup.service.FirebaseService;
+import com.example.linkup.utility.ValidationUtils;
 import com.google.firebase.firestore.CollectionReference;
 
 import java.util.ArrayList;
@@ -29,9 +30,9 @@ public class RegisterActivity extends AppCompatActivity {
         editTextFullName = findViewById(R.id.editTextFullName);
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
-        editTextRetypePassword = findViewById(R.id.editTextRetypePassword); // New reference
+        editTextRetypePassword = findViewById(R.id.editTextRetypePassword);
         editTextRMITId = findViewById(R.id.editTextRMITId);
-        btnRegister = findViewById(R.id.btnRegister); // Updated reference
+        btnRegister = findViewById(R.id.btnRegister);
 
         firebaseService = new FirebaseService(this);
 
@@ -51,67 +52,71 @@ public class RegisterActivity extends AppCompatActivity {
         String rmitId = editTextRMITId.getText().toString();
         String retypePassword = editTextRetypePassword.getText().toString();
 
-        // Perform basic validation
-        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || rmitId.isEmpty()) {
+        // Validations
+        if (!ValidationUtils.isNotEmpty(fullName) ||
+                !ValidationUtils.isNotEmpty(email) ||
+                !ValidationUtils.isNotEmpty(password) ||
+                !ValidationUtils.isNotEmpty(rmitId)) {
             showToast("Please fill in all fields");
             return;
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!ValidationUtils.isValidEmail(email)) {
             showToast("Invalid email address");
             return;
         }
 
-        if (password.length() < 6) {
-            showToast("Password must be at least 6 characters");
+        if (!ValidationUtils.isValidPassword(password)) {
+            showToast("Password must be at least 8 characters, include a number, a capital letter, and a special character");
             return;
         }
+
         if (!password.equals(retypePassword)) {
             showToast("Passwords do not match");
             return;
         }
 
-        // Additional validation for RMIT ID (assuming it should be numeric)
-        try {
-            Long.parseLong(rmitId);
-        } catch (NumberFormatException e) {
-            showToast("RMIT ID must be numeric only");
+        if (!ValidationUtils.isValidRmitId(rmitId)) {
+            showToast("Invalid RMIT ID. It should start with 's' followed by 7 digits");
             return;
         }
 
-        // Create a new User object
-        User newUser = new User(
-                null,   // Firestore will assign the userId
-                null,   // Set profileImage to null initially
-                rmitId,
-                fullName,
-                password,   // In a production scenario, consider using password hashing
-                email,
-                new ArrayList<>(),  // Initialize an empty friendList
-                null    // Set courseSchedule to null initially
-        );
 
+        // If validation passes, proceed with Firebase Authentication registration
         firebaseService.signUpUser(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // User registration successful
+                        // User registration successful, retrieve Firebase Authentication UID
+                        String firebaseAuthUserId = firebaseService.getCurrentUser().getUid();
+
+                        // Create a new User object with the Firebase UID
+                        User newUser = new User(
+                                firebaseAuthUserId,  // Set userId to Firebase Authentication UID
+                                null,   // Set profileImage to null initially
+                                rmitId,
+                                fullName,
+                                password,   // In a production scenario, consider using password hashing
+                                email,
+                                new ArrayList<>(),  // Initialize an empty friendList
+                                null    // Set courseSchedule to null initially
+                        );
 
                         // Get a reference to the "users" collection
                         CollectionReference usersCollection = firebaseService.getFirestore().collection("users");
 
-                        // Add the new user to Firestore
-                        usersCollection.add(newUser)
-                                .addOnSuccessListener(documentReference -> {
+                        // Set the new user to Firestore with the document ID as the Firebase UID
+                        usersCollection.document(firebaseAuthUserId).set(newUser)
+                                .addOnSuccessListener(aVoid -> {
                                     showToast("User registered successfully");
                                     // Optionally, navigate to the next activity or perform other actions
+                                    Intent loginIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                    startActivity(loginIntent);
+                                    finish(); // Close the current activity
                                 })
                                 .addOnFailureListener(e -> showToast("Failed to add user to Firestore"));
-                        Intent loginIntent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        startActivity(loginIntent);
-                        finish(); // Close the current activity to prevent going back to it from LoginActivity
                     } else {
                         // User registration failed
-                        showToast("User registration failed");
+                        showToast("User registration failed: " + task.getException().getMessage());
                     }
                 });
 

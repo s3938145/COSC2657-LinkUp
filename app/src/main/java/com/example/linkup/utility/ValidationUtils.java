@@ -45,7 +45,7 @@ public class ValidationUtils {
 
     // Validate RMIT ID
     public static boolean isValidRmitId(String rmitId) {
-        String rmitIdRegex = "^s[0-9]{7}$";
+        String rmitIdRegex = "[0-9]{7}$";
         Pattern pattern = Pattern.compile(rmitIdRegex);
         if (rmitId == null) return false;
         Matcher matcher = pattern.matcher(rmitId);
