@@ -2,12 +2,8 @@ package com.example.linkup.Authentication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
-
-import com.example.linkup.R;
-
 import android.content.Intent;
-
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.linkup.R;
 import com.example.linkup.service.FirebaseService;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -63,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
         btnEmailLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Handle email/password login
+                signInWithEmail();
             }
         });
 
@@ -91,6 +88,28 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void signInWithEmail() {
+        String email = editTextEmail.getText().toString();
+        String password = editTextPassword.getText().toString();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            showToast("Please fill in all fields");
+            return;
+        }
+
+        firebaseService.signInUser(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in successful
+                        showToast("Email Sign In successful");
+                        // Add logic for successful sign-in (e.g., navigate to another activity)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        showToast("Invalid email or password");
+                    }
+                });
+    }
+
     private void signInWithGoogle() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -115,18 +134,22 @@ public class LoginActivity extends AppCompatActivity {
                         .addOnCompleteListener(this, task -> {
                             if (task.isSuccessful()) {
                                 // Google Sign In successful, update UI accordingly
-                                Toast.makeText(LoginActivity.this, "Google Sign In successful", Toast.LENGTH_SHORT).show();
+                                showToast("Google Sign In successful");
                                 // You can add additional logic here, such as navigating to another activity
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Toast.makeText(LoginActivity.this, "Google Sign In failed", Toast.LENGTH_SHORT).show();
+                                showToast("Google Sign In failed");
                             }
                         });
             }
         } catch (ApiException e) {
             // Google Sign In failed, handle exception
             e.printStackTrace();
-            Toast.makeText(LoginActivity.this, "Google Sign In failed" + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            showToast("Google Sign In failed" + e.getStatusCode());
         }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 }
