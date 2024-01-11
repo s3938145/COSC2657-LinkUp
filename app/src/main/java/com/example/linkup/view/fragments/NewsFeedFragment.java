@@ -57,28 +57,32 @@ public class NewsFeedFragment extends Fragment {
             prefetchUserData(posts);
         });
 
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                userCache.put(user.getUserId(), user);
+                postAdapter.notifyDataSetChanged(); // Notify the adapter to refresh data
+            }
+        });
+
         postViewModel.loadPosts();
     }
 
     private void prefetchUserData(List<Post> posts) {
-        Set<String> userIds = new HashSet<>();
         for (Post post : posts) {
-            userIds.add(post.getPosterId());
-        }
-
-        for (String userId : userIds) {
-            if (!userCache.containsKey(userId)) {
-                userViewModel.getUser(userId);
-                userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), user -> {
-                    if (user != null) {
-                        userCache.put(userId, user);
-                        postAdapter.notifyDataSetChanged(); // Notify the adapter to refresh data
-                    }
-                });
+            if (!userCache.containsKey(post.getPosterId())) {
+                userViewModel.getUser(post.getPosterId());
             }
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Optionally refresh data when fragment resumes
+        postViewModel.loadPosts();
+    }
 }
+
 
 
 
