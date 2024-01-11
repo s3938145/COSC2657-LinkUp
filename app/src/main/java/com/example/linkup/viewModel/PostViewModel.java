@@ -152,8 +152,8 @@ public class PostViewModel extends AndroidViewModel {
         });
     }
 
-    public void toggleLikeOnPost(String postId) {
-        postRepository.toggleLikeOnPost(postId, new PostRepository.DataStatus() {
+    public void toggleLikeOnPost(Post post) {
+        postRepository.toggleLikeOnPost(post, new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
 

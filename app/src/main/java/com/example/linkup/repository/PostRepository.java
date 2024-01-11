@@ -35,8 +35,8 @@ public class PostRepository {
         firebaseService.deletePostFromDatabase(postId, dataStatus);
     }
 
-    public void toggleLikeOnPost(String postId, final DataStatus dataStatus) {
-        firebaseService.toggleLikeOnPost(postId, currentUserId,dataStatus);
+    public void toggleLikeOnPost(Post post, final DataStatus dataStatus) {
+        firebaseService.toggleLikeOnPost(post, currentUserId,dataStatus);
     }
 
     // Interface for callback

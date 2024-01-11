@@ -137,8 +137,8 @@ public class FirebaseService {
                 .addOnFailureListener(dataStatus::DataOperationFailed);
     }
 
-    public void toggleLikeOnPost(String postId, String userId, final DataStatus dataStatus) {
-        DatabaseReference postRef = postsReference.child(postId);
+    public void toggleLikeOnPost(Post post, String userId, final DataStatus dataStatus) {
+        DatabaseReference postRef = postsReference.child(post.getPostId());
         postRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
