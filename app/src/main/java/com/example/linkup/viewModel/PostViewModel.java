@@ -31,8 +31,8 @@ public class PostViewModel extends AndroidViewModel {
         postRepository.getAllPosts(new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                if (posts.isEmpty()) {
-                    lastLoadedPostDate = posts.get(posts.size() - 1).getPostDate();
+                if (!posts.isEmpty()) {
+                    lastLoadedPostDate = posts.get(0).getPostDate();
                 }
                 postsLiveData.postValue(posts);
             }

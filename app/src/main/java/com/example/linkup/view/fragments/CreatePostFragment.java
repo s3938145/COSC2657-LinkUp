@@ -16,12 +16,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Post;
+import com.example.linkup.model.User;
 import com.example.linkup.service.FirebaseService;
 import com.example.linkup.utility.NavigationHelper;
 import com.example.linkup.utility.UserProfileHeaderHandler;
 import com.example.linkup.viewModel.PostViewModel;
 import com.example.linkup.viewModel.UserViewModel;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class CreatePostFragment extends Fragment {
 
@@ -50,11 +51,11 @@ public class CreatePostFragment extends Fragment {
         // Find the included user profile header layout
         View userProfileHeader = view.findViewById(R.id.user_profile_header);
 
-        // Get currently sign in user's ID
-        String currentUserId = firebaseService.getCurrentUser() != null ? firebaseService.getCurrentUser().getUid() : null;
+        // Get currently sign in user's
+        String currentUserId = firebaseService.getCurrentUser().getUid();
 
         // Update user profile header views
-        UserProfileHeaderHandler.updateUserProfileViews(userViewModel, currentUserId ,userProfileHeader ,getViewLifecycleOwner());
+         UserProfileHeaderHandler.updateUserProfileViews(userViewModel, currentUserId, userProfileHeader, getViewLifecycleOwner());
 
         buttonPost.setOnClickListener(v -> {
             createPost();
