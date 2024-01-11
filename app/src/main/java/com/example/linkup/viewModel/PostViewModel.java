@@ -10,6 +10,16 @@ import com.example.linkup.repository.PostRepository;
 import com.example.linkup.service.FirebaseService;
 import java.util.List;
 
+import android.app.Application;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import com.example.linkup.model.Post;
+import com.example.linkup.repository.PostRepository;
+import com.example.linkup.service.FirebaseService;
+import java.util.List;
+
 public class PostViewModel extends AndroidViewModel {
 
     private final PostRepository postRepository;
@@ -31,8 +41,8 @@ public class PostViewModel extends AndroidViewModel {
         postRepository.getAllPosts(new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
-                if (!posts.isEmpty()) {
-                    lastLoadedPostDate = posts.get(0).getPostDate();
+                if (posts.isEmpty()) {
+                    lastLoadedPostDate = posts.get(posts.size() - 1).getPostDate();
                 }
                 postsLiveData.postValue(posts);
             }
@@ -152,8 +162,8 @@ public class PostViewModel extends AndroidViewModel {
         });
     }
 
-    public void toggleLikeOnPost(Post post) {
-        postRepository.toggleLikeOnPost(post, new PostRepository.DataStatus() {
+    public void toggleLikeOnPost(String postId) {
+        postRepository.toggleLikeOnPost(postId, new PostRepository.DataStatus() {
             @Override
             public void DataIsLoaded(List<Post> posts) {
 

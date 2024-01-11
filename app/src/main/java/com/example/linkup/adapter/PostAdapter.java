@@ -94,7 +94,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         private void onLikeClicked(int position) {
             if (position != RecyclerView.NO_POSITION) {
                 Post post = postList.get(position);
-                postViewModel.toggleLikeOnPost(post);
+                postViewModel.toggleLikeOnPost(post.getPostId());
             }
         }
     }
