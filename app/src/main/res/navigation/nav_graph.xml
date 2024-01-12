@@ -6,12 +6,30 @@
     <fragment
         android:id="@+id/newsFeedFragment"
         android:name="com.example.linkup.view.fragments.NewsFeedFragment"
-        android:label="news_feed_fragment" />
+        android:label="news_feed_fragment">
+        <!-- Define an action here -->
+        <action
+            android:id="@+id/action_newsFeedFragment_to_updatePostFragment"
+            app:destination="@id/updatePostFragment">
+            <argument
+                android:name="postId"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/createPostFragment"
         android:name="com.example.linkup.view.fragments.CreatePostFragment"
         android:label="create_post_fragment" />
 
-    <!-- Define other fragments here if needed -->
+    <fragment
+        android:id="@+id/updatePostFragment"
+        android:name="com.example.linkup.view.fragments.UpdatePostFragment"
+        android:label="update_post_fragment">
+        <argument
+            android:name="postId"
+            app:argType="string" />
+    </fragment>
+
 </navigation>
+

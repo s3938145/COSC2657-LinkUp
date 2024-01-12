@@ -3,6 +3,9 @@ package com.example.linkup.service;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -123,6 +126,30 @@ public class FirebaseService {
                         dataStatus.DataOperationFailed(databaseError.toException());
                     }
                 });
+    }
+
+    // Method to retrieve a single post by its postId
+    public LiveData<Post> getPostById(String postId) {
+        MutableLiveData<Post> postLiveData = new MutableLiveData<>();
+
+        postsReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Post post = dataSnapshot.getValue(Post.class);
+                if (post != null) {
+                    postLiveData.postValue(post);
+                } else {
+                    postLiveData.postValue(null); // Indicate that the post was not found
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle the database error, for example, by logging it
+            }
+        });
+
+        return postLiveData;
     }
 
     public void updatePostInDatabase(Post post, final DataStatus dataStatus) {

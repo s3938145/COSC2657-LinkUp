@@ -1,5 +1,7 @@
 package com.example.linkup.repository;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.linkup.model.Post;
 import com.example.linkup.service.FirebaseService;
 
@@ -27,6 +29,11 @@ public class PostRepository {
         firebaseService.loadPostsFromDatabase(dataStatus, lastLoadedPostDate, limit);
     }
 
+    // Method to retrieve a single post by its postId
+    public LiveData<Post> getPostById(String postId) {
+        return firebaseService.getPostById(postId);
+    }
+
     public void updatePost(Post post, final DataStatus dataStatus) {
         firebaseService.updatePostInDatabase(post, dataStatus);
     }
@@ -38,6 +45,7 @@ public class PostRepository {
     public void toggleLikeOnPost(String postId, final DataStatus dataStatus) {
         firebaseService.toggleLikeOnPost(postId, currentUserId,dataStatus);
     }
+
 
     // Interface for callback
     public interface DataStatus {

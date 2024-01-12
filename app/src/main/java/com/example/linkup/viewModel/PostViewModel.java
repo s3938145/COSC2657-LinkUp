@@ -10,16 +10,6 @@ import com.example.linkup.repository.PostRepository;
 import com.example.linkup.service.FirebaseService;
 import java.util.List;
 
-import android.app.Application;
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import com.example.linkup.model.Post;
-import com.example.linkup.repository.PostRepository;
-import com.example.linkup.service.FirebaseService;
-import java.util.List;
-
 public class PostViewModel extends AndroidViewModel {
 
     private final PostRepository postRepository;
@@ -190,6 +180,10 @@ public class PostViewModel extends AndroidViewModel {
             }
 
         });
+    }
+
+    public LiveData<Post> getPostById(String postId) {
+        return postRepository.getPostById(postId);
     }
 
     public LiveData<List<Post>> getPostsLiveData() {
