@@ -1,9 +1,13 @@
 package com.example.linkup.adapter;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
@@ -11,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Post;
+import com.example.linkup.utility.ConfirmationDialog;
 import com.example.linkup.utility.UserProfileHeaderHandler;
+import com.example.linkup.view.fragments.CreatePostFragment;
 import com.example.linkup.viewModel.PostViewModel;
 import com.example.linkup.viewModel.UserViewModel;
 
@@ -47,6 +53,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Post post = postList.get(position);
         holder.bind(post);
+
+        // Update user profile views
+        updateUserProfileViews(holder, post.getPosterId());
     }
 
     @Override
@@ -57,6 +66,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public void setPostList(List<Post> newPostList) {
         this.postList = newPostList;
         notifyDataSetChanged();
+    }
+
+    // Add this method to update user profile views
+    private void updateUserProfileViews(PostViewHolder holder, String userId) {
+        View rootView = holder.itemView; // Get the root view of the item
+        UserProfileHeaderHandler.updateUserProfileViews(userViewModel, userId, rootView, lifecycleOwner);
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
@@ -75,6 +90,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             imageLikeIcon = itemView.findViewById(R.id.imageLikeIcon);
             buttonOptions = itemView.findViewById(R.id.buttonOptions);
 
+            buttonOptions.setOnClickListener(v -> showPopupMenu(getAdapterPosition()));
             imageLikeIcon.setOnClickListener(v -> onLikeClicked(getAdapterPosition()));
         }
 
@@ -82,13 +98,41 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             textPostContent.setText(post.getPostContent());
             textPostDate.setText(dateFormat.format(new Date(post.getPostDate())));
             textLikeCount.setText(String.valueOf(post.getPostLikes()));
+        }
 
-            userViewModel.getUser(post.getPosterId());
-            userViewModel.getUserLiveData().observe(lifecycleOwner, user -> {
-                if (user != null && user.getUserId().equals(post.getPosterId())) {
-                    // Update user info in post
+        private void showPopupMenu(int position) {
+            PopupMenu popupMenu = new PopupMenu(itemView.getContext(), buttonOptions);
+            popupMenu.getMenuInflater().inflate(R.menu.post_options_menu, popupMenu.getMenu());
+
+            // Get the menu items by their IDs
+            MenuItem updateMenuItem = popupMenu.getMenu().findItem(R.id.menu_update);
+            MenuItem deleteMenuItem = popupMenu.getMenu().findItem(R.id.menu_delete);
+
+            // Set click listeners for menu items
+            updateMenuItem.setOnMenuItemClickListener(item -> {
+                if (position != RecyclerView.NO_POSITION) {
+                    Post post = postList.get(position);
+                    // Handle the "Update" option
+                    // You can open an update activity or perform the update action here
+                    // For example, you can start an UpdatePostActivity with the post data
+                    Intent intent = new Intent(itemView.getContext(), CreatePostFragment.class);
+                    intent.putExtra("postId", post.getPostId());
+                    itemView.getContext().startActivity(intent);
+                    return true;
                 }
+                return false;
             });
+
+            deleteMenuItem.setOnMenuItemClickListener(item -> {
+                if (position != RecyclerView.NO_POSITION) {
+                    Post post = postList.get(position);
+                    // Show a confirmation dialog before deleting
+                    showDeleteConfirmationDialog(position, post.getPostId());
+                }
+                return false;
+            });
+
+            popupMenu.show();
         }
 
         private void onLikeClicked(int position) {
@@ -97,8 +141,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 postViewModel.toggleLikeOnPost(post.getPostId());
             }
         }
+
+        private void showDeleteConfirmationDialog(int position, String postId) {
+            ConfirmationDialog.showConfirmationDialog(
+                    itemView.getContext(),
+                    "Confirm Deletion",
+                    "Are you sure you want to delete this post?",
+                    "Yes",
+                    "No",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User clicked "Yes," perform the delete operation
+                            postViewModel.deletePost(postId);
+                        }
+                    },
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // User clicked "No," do nothing or handle as needed
+                            dialog.dismiss();
+                        }
+                    }
+            );
+        }
     }
 }
+
+
 
 
 
