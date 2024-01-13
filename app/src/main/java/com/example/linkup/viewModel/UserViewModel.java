@@ -13,11 +13,14 @@ import com.example.linkup.service.FirebaseService;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserViewModel extends AndroidViewModel {
 
     private UserRepository userRepository;
+    private Map<String, MutableLiveData<User>> userCache;
     private MutableLiveData<User> userLiveData;
     private MutableLiveData<List<User>> usersLiveData;
     private MutableLiveData<String> errorMessage;
@@ -26,6 +29,7 @@ public class UserViewModel extends AndroidViewModel {
         super(application); // Call the super constructor with the application context
         FirebaseService firebaseService = new FirebaseService(application.getApplicationContext());
         userRepository = new UserRepository(firebaseService);
+        userCache = new HashMap<>();
         userLiveData = new MutableLiveData<>();
         usersLiveData = new MutableLiveData<>();
         errorMessage = new MutableLiveData<>();
@@ -55,15 +59,28 @@ public class UserViewModel extends AndroidViewModel {
                 });
     }
 
-    public void getUser(String userId) {
+    public LiveData<User> getUserLiveData(String userId) {
+        if (!userCache.containsKey(userId)) {
+            MutableLiveData<User> newUserLiveData = new MutableLiveData<>();
+            userCache.put(userId, newUserLiveData);
+            fetchUser(userId);
+        }
+        return userCache.get(userId);
+    }
+
+    private void fetchUser(String userId) {
         userRepository.getUser(userId)
                 .addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
-                    userLiveData.postValue(user);
+                    if (user != null) {
+                        MutableLiveData<User> liveData = userCache.get(userId);
+                        if (liveData != null) {
+                            liveData.postValue(user);
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
-
     public void updateUser(User user) {
         userRepository.updateUser(user)
                 .addOnSuccessListener(aVoid -> userLiveData.postValue(user))

@@ -28,159 +28,83 @@ public class PostViewModel extends AndroidViewModel {
     }
 
     public void loadPosts() {
-        postRepository.getAllPosts(new PostRepository.DataStatus() {
+        postRepository.getAllPosts(lastLoadedPostDate, POST_LOAD_LIMIT, new FirebaseService.FirebaseCallback<List<Post>>() {
             @Override
-            public void DataIsLoaded(List<Post> posts) {
-                if (posts.isEmpty()) {
-                    lastLoadedPostDate = posts.get(posts.size() - 1).getPostDate();
+            public void onSuccess(List<Post> posts) {
+                if (!posts.isEmpty()) {
+                    lastLoadedPostDate = posts.get(0).getPostDate();
                 }
                 postsLiveData.postValue(posts);
             }
 
             @Override
-            public void DataIsInserted() {
-                // Not used in this context
-            }
-
-            @Override
-            public void DataIsUpdated() {
-                // Not used in this context
-            }
-
-            @Override
-            public void DataIsDeleted() {
-                // Not used in this context
-            }
-
-            @Override
-            public void DataOperationFailed(Exception e) {
+            public void onFailure(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
-        }, lastLoadedPostDate, POST_LOAD_LIMIT);
+        });
     }
+
 
     public void addPost(String postContent) {
-        postRepository.addPost(postContent, new PostRepository.DataStatus() {
+        postRepository.addPost(postContent, new FirebaseService.FirebaseCallback<Void>() {
             @Override
-            public void DataIsLoaded(List<Post> posts) {
-
-            }
-
-            @Override
-            public void DataIsInserted() {
+            public void onSuccess(Void result) {
+                lastLoadedPostDate = Long.MAX_VALUE;
                 loadPosts();
             }
 
             @Override
-            public void DataIsUpdated() {
-
-            }
-
-            @Override
-            public void DataIsDeleted() {
-
-            }
-
-            @Override
-            public void DataOperationFailed(Exception e) {
+            public void onFailure(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
-
-            // Implement other DataStatus methods as necessary
         });
     }
+
 
     public void updatePost(Post post) {
-        postRepository.updatePost(post, new PostRepository.DataStatus() {
+        postRepository.updatePost(post, new FirebaseService.FirebaseCallback<Void>() {
             @Override
-            public void DataIsLoaded(List<Post> posts) {
-
-            }
-
-            @Override
-            public void DataIsInserted() {
-
-            }
-
-            @Override
-            public void DataIsUpdated() {
+            public void onSuccess(Void result) {
                 loadPosts();
             }
 
             @Override
-            public void DataIsDeleted() {
-
-            }
-
-            @Override
-            public void DataOperationFailed(Exception e) {
+            public void onFailure(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
-
-            // Implement other DataStatus methods as necessary
         });
     }
+
 
     public void deletePost(String postId) {
-        postRepository.deletePost(postId, new PostRepository.DataStatus() {
+        postRepository.deletePost(postId, new FirebaseService.FirebaseCallback<Void>() {
             @Override
-            public void DataIsLoaded(List<Post> posts) {
-
-            }
-
-            @Override
-            public void DataIsInserted() {
-
-            }
-
-            @Override
-            public void DataIsUpdated() {
-
-            }
-
-            @Override
-            public void DataIsDeleted() {
+            public void onSuccess(Void result) {
                 loadPosts();
             }
 
             @Override
-            public void DataOperationFailed(Exception e) {
+            public void onFailure(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
-
-            // Implement other DataStatus methods as necessary
         });
     }
+
 
     public void toggleLikeOnPost(String postId) {
-        postRepository.toggleLikeOnPost(postId, new PostRepository.DataStatus() {
+        postRepository.toggleLikeOnPost(postId, new FirebaseService.FirebaseCallback<Void>() {
             @Override
-            public void DataIsLoaded(List<Post> posts) {
-
-            }
-
-            @Override
-            public void DataIsInserted() {
-
-            }
-
-            @Override
-            public void DataIsUpdated() {
+            public void onSuccess(Void result) {
                 loadPosts();
             }
 
             @Override
-            public void DataIsDeleted() {
-
-            }
-
-            @Override
-            public void DataOperationFailed(Exception e) {
+            public void onFailure(Exception e) {
                 errorMessage.postValue(e.getMessage());
             }
-
         });
     }
+
 
     public LiveData<Post> getPostById(String postId) {
         return postRepository.getPostById(postId);

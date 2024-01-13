@@ -28,7 +28,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.example.linkup.model.Post;
-import com.example.linkup.repository.PostRepository.DataStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,16 +98,15 @@ public class FirebaseService {
     }
 
     // Realtime Database operations for posts
-    public void addPostToDatabase(Post post, final DataStatus dataStatus) {
+    public void addPostToDatabase(Post post, FirebaseCallback<Void> callback) {
         String postId = postsReference.push().getKey();
-        // Assuming Post class has a constructor or a static method to create a new instance with postId
         Post newPost = new Post(postId, post.getPosterId(), post.getPostContent(), System.currentTimeMillis(), post.getLikedByUsers());
         postsReference.child(postId).setValue(newPost)
-                .addOnSuccessListener(aVoid -> dataStatus.DataIsInserted())
-                .addOnFailureListener(dataStatus::DataOperationFailed);
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
     }
 
-    public void loadPostsFromDatabase(final DataStatus dataStatus, long lastLoadedPostDate, int limit) {
+    public void loadPostsFromDatabase(long lastLoadedPostDate, int limit, FirebaseCallback<List<Post>> callback) {
         postsReference.orderByChild("postDate").endAt(lastLoadedPostDate).limitToLast(limit)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -118,15 +116,16 @@ public class FirebaseService {
                             Post post = postSnapshot.getValue(Post.class);
                             postList.add(0, post);
                         }
-                        dataStatus.DataIsLoaded(postList);
+                        callback.onSuccess(postList);
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        dataStatus.DataOperationFailed(databaseError.toException());
+                        callback.onFailure(databaseError.toException());
                     }
                 });
     }
+
 
     // Method to retrieve a single post by its postId
     public LiveData<Post> getPostById(String postId) {
@@ -152,19 +151,21 @@ public class FirebaseService {
         return postLiveData;
     }
 
-    public void updatePostInDatabase(Post post, final DataStatus dataStatus) {
+    public void updatePostInDatabase(Post post, FirebaseCallback<Void> callback) {
         postsReference.child(post.getPostId()).setValue(post)
-                .addOnSuccessListener(aVoid -> dataStatus.DataIsUpdated())
-                .addOnFailureListener(dataStatus::DataOperationFailed);
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
     }
 
-    public void deletePostFromDatabase(String postId, final DataStatus dataStatus) {
+
+    public void deletePostFromDatabase(String postId, FirebaseCallback<Void> callback) {
         postsReference.child(postId).removeValue()
-                .addOnSuccessListener(aVoid -> dataStatus.DataIsDeleted())
-                .addOnFailureListener(dataStatus::DataOperationFailed);
+                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
     }
 
-    public void toggleLikeOnPost(String postId, String userId, final DataStatus dataStatus) {
+
+    public void toggleLikeOnPost(String postId, String userId, FirebaseCallback<Void> callback) {
         DatabaseReference postRef = postsReference.child(postId);
         postRef.runTransaction(new Transaction.Handler() {
             @Override
@@ -189,14 +190,20 @@ public class FirebaseService {
             @Override
             public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot dataSnapshot) {
                 if (databaseError != null) {
-                    dataStatus.DataOperationFailed(databaseError.toException());
+                    callback.onFailure(databaseError.toException());
                 } else {
-                    dataStatus.DataIsUpdated();
+                    callback.onSuccess(null);
                 }
             }
         });
     }
+
     // ... other Firebase operations as needed ...
+
+    public interface FirebaseCallback<T> {
+        void onSuccess(T result);
+        void onFailure(Exception e);
+    }
 }
 
 
