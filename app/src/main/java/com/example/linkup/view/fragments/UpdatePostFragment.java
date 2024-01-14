@@ -18,7 +18,9 @@ import com.example.linkup.R;
 import com.example.linkup.model.Post;
 import com.example.linkup.service.FirebaseService;
 import com.example.linkup.utility.NavigationHelper;
+import com.example.linkup.utility.UserProfileHeaderHandler;
 import com.example.linkup.viewModel.PostViewModel;
+import com.example.linkup.viewModel.UserViewModel;
 
 public class UpdatePostFragment extends Fragment {
 
@@ -32,7 +34,7 @@ public class UpdatePostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_create_post, container, false); // Use the same layout as for creating a post
 
         editTextPostContent = view.findViewById(R.id.editTextPostContent);
-        Button buttonEdit = view.findViewById(R.id.buttonPost); // Assuming this ID is for the edit button
+        Button buttonEdit = view.findViewById(R.id.buttonPost);
         Button buttonCancel = view.findViewById(R.id.buttonCancel);
 
         firebaseService = new FirebaseService(getContext());

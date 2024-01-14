@@ -16,7 +16,7 @@
             android:queryHint="Search Post"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@id/filterButton" />
 
         <Button
             android:id="@+id/filterButton"
@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:text="Filter"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/searchView"
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView

@@ -48,15 +48,6 @@ public class CreatePostFragment extends Fragment {
         postViewModel = new ViewModelProvider(requireActivity()).get(PostViewModel.class);
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
-        // Find the included user profile header layout
-        View userProfileHeader = view.findViewById(R.id.user_profile_header);
-
-        // Get currently sign in user's
-        String currentUserId = firebaseService.getCurrentUser().getUid();
-
-        // Update user profile header views
-         UserProfileHeaderHandler.updateUserProfileViews(userViewModel, currentUserId, userProfileHeader, getViewLifecycleOwner());
-
         buttonPost.setOnClickListener(v -> {
             createPost();
         });

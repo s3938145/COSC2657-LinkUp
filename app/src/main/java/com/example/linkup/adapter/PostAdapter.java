@@ -63,48 +63,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         updateUserProfileViews(holder, post.getPosterId());
     }
 
-    public void setCurrentUserId(String userId) {
-        this.currentUserId = userId;
-    }
-
-    public void applyFilter(String filterType) {
-        switch (filterType) {
-            case "Liked":
-                filterLikedPosts();
-                break;
-            case "My Posts":
-                filterMyPosts();
-                break;
-            default:
-                resetFilter();
-                break;
-        }
-    }
-
-    private void filterLikedPosts() {
-        List<Post> filteredList = new ArrayList<>();
-        for (Post post : allPosts) {
-            if (post.getLikedByUsers().contains(currentUserId)) {
-                filteredList.add(post);
-            }
-        }
-        setPostList(filteredList);
-    }
-
-    private void filterMyPosts() {
-        List<Post> filteredList = new ArrayList<>();
-        for (Post post : allPosts) {
-            if (post.getPosterId().equals(currentUserId)) {
-                filteredList.add(post);
-            }
-        }
-        setPostList(filteredList);
-    }
-
-    private void resetFilter() {
-        setPostList(new ArrayList<>(allPosts));
-    }
-
     @Override
     public int getItemCount() {
         return postList.size();
@@ -115,20 +73,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.postList.clear();
         this.postList.addAll(newPostList);
         diffResult.dispatchUpdatesTo(this);
-        notifyDataSetChanged();
-    }
-
-    // Method to filter posts
-    public void filter(String query) {
-        query = query.toLowerCase();
-        List<Post> filteredList = new ArrayList<>();
-        for (Post post : allPosts) {
-            if (post.getPostContent().toLowerCase().contains(query)) {
-                filteredList.add(post);
-            }
-        }
-        postList = filteredList;
-        notifyDataSetChanged();
     }
 
     // Call this method when you set posts initially

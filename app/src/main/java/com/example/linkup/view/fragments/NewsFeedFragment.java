@@ -37,15 +37,16 @@ public class NewsFeedFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
+
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize SwipeRefreshLayout
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        setupSwipeRefreshLayout();
 
-        // Initialize searchView
         searchView = view.findViewById(R.id.searchView);
         setupSearchView();
+
         return view;
     }
 
@@ -64,22 +65,13 @@ public class NewsFeedFragment extends Fragment {
 
         Button filterButton = view.findViewById(R.id.filterButton);
         filterButton.setOnClickListener(v -> showFilterOptions());
-        updateFilterButtonText("Default");
-
-        String currentUserId = firebaseService.getCurrentUser().getUid();
-        postAdapter.setCurrentUserId(currentUserId);
 
         postViewModel.getPostsLiveData().observe(getViewLifecycleOwner(), posts -> {
-            postAdapter.setPostList(posts);
             postAdapter.setAllPosts(posts);
             swipeRefreshLayout.setRefreshing(false);
         });
 
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            postViewModel.loadPosts();
-            updateFilterButtonText("Default"); // Reset filter text to Default on refresh
-            swipeRefreshLayout.setRefreshing(false);
-        });
+        setupRecyclerViewScrollListener();
 
         postViewModel.loadPosts();
     }
@@ -89,14 +81,33 @@ public class NewsFeedFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                postViewModel.setCurrentSearchQuery(query);
+                return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                postAdapter.filter(newText);
+                postViewModel.setCurrentSearchQuery(newText);
                 return true;
             }
+        });
+    }
+
+    private void setupRecyclerViewScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (!recyclerView.canScrollVertically(1)) { // Check if scrolling to the bottom
+                    postViewModel.loadMorePosts();
+                }
+            }
+        });
+    }
+
+    private void setupSwipeRefreshLayout() {
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            postViewModel.loadPosts();
+            updateFilterButtonText("Default");
         });
     }
 
@@ -106,12 +117,11 @@ public class NewsFeedFragment extends Fragment {
         builder.setTitle("Select Filter")
                 .setItems(filterOptions, (dialog, which) -> {
                     String selectedFilter = filterOptions[which];
-                    postAdapter.applyFilter(selectedFilter);
+                    postViewModel.setCurrentFilter(selectedFilter);
                     updateFilterButtonText(selectedFilter);
                 });
         builder.create().show();
     }
-
     private void updateFilterButtonText(String filter) {
         Button filterButton = getView().findViewById(R.id.filterButton);
         filterButton.setText(filter);

@@ -7,12 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".view.fragments.CreatePostFragment">
 
-    <include
-        android:id="@+id/user_profile_header"
-        layout="@layout/user_profile_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
     <EditText
         android:id="@+id/editTextPostContent"
         android:layout_width="0dp"
@@ -22,7 +16,7 @@
         android:layout_marginTop="@dimen/view_margin"
         android:layout_marginStart="@dimen/view_margin"
         android:layout_marginEnd="@dimen/view_margin"
-        app:layout_constraintTop_toBottomOf="@id/user_profile_header"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/buttonPost" />
