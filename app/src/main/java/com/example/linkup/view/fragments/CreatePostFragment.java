@@ -81,7 +81,6 @@ public class CreatePostFragment extends Fragment {
         // Clear input and hide keyboard
         editTextPostContent.setText("");
         hideKeyboard();
-
         NavigationHelper.navigateToFragment(requireView(), R.id.newsFeedFragment);
     }
 

@@ -24,6 +24,8 @@ public class UserViewModel extends AndroidViewModel {
     private MutableLiveData<User> userLiveData;
     private MutableLiveData<List<User>> usersLiveData;
     private MutableLiveData<String> errorMessage;
+    private final MutableLiveData<User> selectedUser = new MutableLiveData<>();
+
 
     public UserViewModel(@NonNull Application application) {
         super(application); // Call the super constructor with the application context
@@ -103,7 +105,25 @@ public class UserViewModel extends AndroidViewModel {
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
 
-    // Additional methods and logic as needed...
+    public LiveData<List<User>> getUsersLiveData() {
+        return usersLiveData;
+    }
+
+    public void fetchUsers() {
+        userRepository.getAllUsers()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                    usersLiveData.postValue(users);
+                })
+                .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
+    }
+    public void setSelectedUser(User user) {
+        selectedUser.setValue(user);
+    }
+
+    public LiveData<User> getSelectedUser() {
+        return selectedUser;
+    }
 }
 
 

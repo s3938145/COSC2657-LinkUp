@@ -45,6 +45,9 @@ public class UserRepository {
         return firebaseService.getFirestore().collection("users").document(userId)
                 .update("friendList", FieldValue.arrayUnion(friendId));
     }
+    public Task<QuerySnapshot> getAllUsers() {
+        return firebaseService.getFirestore().collection("users").get();
+    }
 
     // Additional repository methods as needed...
 }

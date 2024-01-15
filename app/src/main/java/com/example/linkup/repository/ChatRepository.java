@@ -6,18 +6,17 @@ import androidx.annotation.Nullable;
 import com.example.linkup.model.ChatMessage;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ChatRepository {
     private String currentUserId;
-    private DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats");
+    private DatabaseReference chatRef;
     private ChildEventListener chatEventListener;
 
     public interface ChatUpdateListener {
@@ -31,6 +30,10 @@ public class ChatRepository {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
+            chatRef = FirebaseDatabase.getInstance().getReference("chats");
+        } else {
+            // Handle the case when the user is not authenticated.
+            // You might want to show an error message or navigate to the login screen.
         }
     }
 
@@ -44,13 +47,17 @@ public class ChatRepository {
     }
 
     public void addChatMessagesListener(String chatId, final ChatUpdateListener listener) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            return;
+        }
+
         if (chatEventListener != null) {
             chatRef.child(chatId).removeEventListener(chatEventListener);
         }
 
         chatEventListener = new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            public void onChildAdded(@NonNull com.google.firebase.database.DataSnapshot dataSnapshot, @Nullable String previousChildName) {
                 ChatMessage message = dataSnapshot.getValue(ChatMessage.class);
                 if (message != null) {
                     listener.onChatUpdated(Collections.singletonList(message));
@@ -58,7 +65,7 @@ public class ChatRepository {
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            public void onChildChanged(@NonNull com.google.firebase.database.DataSnapshot dataSnapshot, @Nullable String previousChildName) {
                 ChatMessage changedMessage = dataSnapshot.getValue(ChatMessage.class);
                 if (changedMessage != null) {
                     listener.onChatMessageChanged(changedMessage);
@@ -66,17 +73,17 @@ public class ChatRepository {
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            public void onChildRemoved(@NonNull com.google.firebase.database.DataSnapshot dataSnapshot) {
                 listener.onChatMessageDeleted(dataSnapshot.getKey());
             }
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onChildMoved(@NonNull com.google.firebase.database.DataSnapshot snapshot, @Nullable String previousChildName) {
                 // Not implemented
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 listener.onChatUpdateFailed(databaseError);
             }
         };
@@ -91,8 +98,3 @@ public class ChatRepository {
         }
     }
 }
-
-
-
-
-

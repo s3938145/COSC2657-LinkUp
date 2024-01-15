@@ -4,88 +4,97 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.linkup.R;
 import com.example.linkup.adapter.ChatAdapter;
 import com.example.linkup.model.ChatMessage;
-import com.example.linkup.viewModel.ChatViewModel;
-
+import com.example.linkup.model.User;
+import com.example.linkup.viewModel.UserViewModel;
 import java.util.List;
 
 public class ChatFragment extends Fragment {
 
-    private ChatViewModel chatViewModel;
-    private RecyclerView recyclerView;
+    private UserViewModel userViewModel;
+    private RecyclerView recyclerViewChat;
     private ChatAdapter chatAdapter;
     private EditText editTextMessage;
-    private ImageButton buttonSend;
-    private String chatId; // Set this based on your chat logic
+    private Button buttonSendMessage;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        // Initialize ChatViewModel
-        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
-        setupRecyclerView(view);
-        setupMessageInput(view);
+        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
 
-        // Observe chat messages
-        chatViewModel.getMessagesLiveData().observe(getViewLifecycleOwner(), this::onChatMessagesReceived);
-        chatViewModel.getErrorLiveData().observe(getViewLifecycleOwner(), this::onErrorReceived);
+        recyclerViewChat = view.findViewById(R.id.recyclerViewChat);
+        editTextMessage = view.findViewById(R.id.editTextMessage);
+        buttonSendMessage = view.findViewById(R.id.buttonSendMessage);
 
-        // Add listener for chat updates
-        chatViewModel.addChatMessagesListener(chatId);
+        setupRecyclerView();
+
+        // Observe the selected user's chat messages
+        userViewModel.getSelectedUser().observe(getViewLifecycleOwner(), selectedUser -> {
+            if (selectedUser != null) {
+                loadChatMessages(selectedUser.getUserId());
+            }
+        });
+
+        buttonSendMessage.setOnClickListener(v -> sendMessage());
 
         return view;
     }
 
-    private void setupRecyclerView(View view) {
-        recyclerView = view.findViewById(R.id.recyclerViewChat);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    private void setupRecyclerView() {
         chatAdapter = new ChatAdapter();
-        recyclerView.setAdapter(chatAdapter);
+        recyclerViewChat.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerViewChat.setAdapter(chatAdapter);
     }
 
-    private void setupMessageInput(View view) {
-        editTextMessage = view.findViewById(R.id.editTextMessage);
-        buttonSend = view.findViewById(R.id.buttonSend);
-        buttonSend.setOnClickListener(v -> sendMessage());
-    }
+    private void loadChatMessages(String chatId) {
+        // Implement logic to load chat messages from the database using the chatId
+        // For example, you can use the userViewModel to fetch chat messages
 
-    private void sendMessage() {
-        String messageText = editTextMessage.getText().toString();
-        if (!messageText.isEmpty()) {
-            chatViewModel.sendMessage(chatId, messageText, System.currentTimeMillis());
-            editTextMessage.setText("");
+        // Dummy data for testing
+        List<ChatMessage> dummyChatMessages = getDummyChatMessages();
+        chatAdapter.setMessages(dummyChatMessages);
+
+        // Scroll to the last message
+        if (dummyChatMessages.size() > 0) {
+            recyclerViewChat.smoothScrollToPosition(dummyChatMessages.size() - 1);
         }
     }
 
-    private void onChatMessagesReceived(List<ChatMessage> messages) {
-        chatAdapter.setMessages(messages);
-        recyclerView.scrollToPosition(messages.size() - 1); // Scroll to the latest message
+    private void sendMessage() {
+        String messageText = editTextMessage.getText().toString().trim();
+        if (!messageText.isEmpty()) {
+            // Implement logic to send the message to the selected user
+            // For example, you can use the userViewModel to send the message
+
+            // Dummy data for testing
+            ChatMessage sentMessage = new ChatMessage("senderId", "receiverId", messageText);
+            chatAdapter.addMessage(sentMessage);
+
+            // Clear the input field
+            editTextMessage.setText("");
+
+            // Scroll to the last message
+            recyclerViewChat.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
+        }
     }
 
-    private void onErrorReceived(String error) {
-        // Handle error, e.g., show a toast message
+    // Dummy data for testing
+    private List<ChatMessage> getDummyChatMessages() {
+        // Replace this with your actual logic to fetch chat messages from the database
+        // This is just a dummy list for testing
+        return List.of(
+                new ChatMessage("senderId", "receiverId", "Hello!"),
+                new ChatMessage("receiverId", "senderId", "Hi there!"),
+                new ChatMessage("senderId", "receiverId", "How are you?")
+        );
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        chatViewModel.removeChatMessagesListener(chatId); // Clean up listener
-    }
-
-    // Additional methods as needed
 }
-
-
