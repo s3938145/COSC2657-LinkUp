@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.linkup.R;
+import com.example.linkup.model.User;
 import com.example.linkup.service.FirebaseService;
 import com.example.linkup.view.activities.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -24,6 +26,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -101,7 +105,9 @@ public class LoginActivity extends AppCompatActivity {
         firebaseService.signInUser(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        firebaseService.checkAndUpdateUserRole(firebaseService.getCurrentUser().getUid());
                         // Sign in successful
+                        updateFcmToken();
                         showToast("Email Sign In successful");
                         // Intent to start MainActivity
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -137,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                         .addOnCompleteListener(this, task -> {
                             if (task.isSuccessful()) {
                                 // Google Sign In successful, update UI accordingly
+                                updateFcmToken();
                                 showToast("Google Sign In successful");
                                 // You can add additional logic here, such as navigating to another activity
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -153,6 +160,26 @@ public class LoginActivity extends AppCompatActivity {
             showToast("Google Sign In failed" + e.getStatusCode());
         }
     }
+
+    private void updateFcmToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FCM", "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    // Log and update the token
+                    Log.d("FCM", "FCM Token: " + token);
+                    firebaseService.updateFcmTokenForCurrentUser(token);
+                });
+    }
+
+
+
 
     private void showToast(String message) {
         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();

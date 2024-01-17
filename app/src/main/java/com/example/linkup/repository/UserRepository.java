@@ -2,19 +2,11 @@ package com.example.linkup.repository;
 
 import com.example.linkup.model.User;
 import com.example.linkup.service.FirebaseService;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.example.linkup.model.User;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 
 public class UserRepository {
@@ -29,8 +21,16 @@ public class UserRepository {
         return firebaseService.getFirestore().collection("users").document(user.getUserId()).set(user);
     }
 
+    public FirebaseUser getCurrentUser() {
+        return firebaseService.getCurrentUser();
+    }
+
     public Task<DocumentSnapshot> getUser(String userId) {
         return firebaseService.getFirestore().collection("users").document(userId).get();
+    }
+
+    public Task<String> getUserRole(String userId) {
+        return firebaseService.getUserRole(userId);
     }
 
     public Task<Void> updateUser(User user) {

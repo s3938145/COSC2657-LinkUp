@@ -2,14 +2,17 @@ package com.example.linkup.service;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.linkup.model.User;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,6 +20,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -80,6 +85,37 @@ public class FirebaseService {
     public FirebaseUser getCurrentUser() {
         return firebaseAuth.getCurrentUser();
     }
+
+    public Task<String> getUserRole(String userId) {
+        // Create a TaskCompletionSource to manage the result of the Firestore call
+        TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
+
+        DocumentReference userDocRef = firestore.collection("users").document(userId);
+        userDocRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    User user = document.toObject(User.class);
+                    if (user != null && user.getUserRole() != null) {
+                        // Resolve the Task with the userRole
+                        taskCompletionSource.setResult(user.getUserRole());
+                    } else {
+                        // Handle the case where userRole is not set
+                        taskCompletionSource.setResult(null);
+                    }
+                } else {
+                    // Handle the case where the user document does not exist
+                    taskCompletionSource.setException(new Exception("User not found"));
+                }
+            } else {
+                // Handle any errors
+                taskCompletionSource.setException(task.getException());
+            }
+        });
+
+        return taskCompletionSource.getTask();
+    }
+
 
     // Firestore methods
     public FirebaseFirestore getFirestore() {
@@ -197,6 +233,58 @@ public class FirebaseService {
             }
         });
     }
+
+    public void updateFcmTokenForCurrentUser(String newToken) {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DocumentReference userDocRef = firestore.collection("users").document(userId);
+
+            userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null) {
+                    // Create a new User object with updated FCM token
+                    User updatedUser = new User(user.getUserId(), user.getUserRole(), user.getProfileImage(), user.getRmitId(), user.getFullName(), user.getPassword(), user.getEmail(), user.getFriendList(), user.getCourseSchedule(), newToken);
+
+                    // Write the updated user back to Firestore
+                    userDocRef.set(updatedUser)
+                            .addOnSuccessListener(aVoid -> Log.d("FirebaseService", "FCM Token updated successfully"))
+                            .addOnFailureListener(e -> Log.w("FirebaseService", "Error updating FCM Token", e));
+                }
+            }).addOnFailureListener(e -> Log.w("FirebaseService", "Error fetching user for FCM Token update", e));
+        }
+    }
+
+    public void checkAndUpdateUserRole(String userId) {
+        DocumentReference userDocRef = firestore.collection("users").document(userId);
+
+        userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+            User user = documentSnapshot.toObject(User.class);
+            if (user != null && (user.getUserRole() == null || user.getUserRole().isEmpty())) {
+                // Create a new User object with updated userRole
+                User updatedUser = new User(
+                        user.getUserId(),
+                        "user", // Set userRole to "user"
+                        user.getProfileImage(),
+                        user.getRmitId(),
+                        user.getFullName(),
+                        user.getPassword(), // Consider storing only password hash instead of plain text
+                        user.getEmail(),
+                        user.getFriendList(),
+                        user.getCourseSchedule(),
+                        user.getFcmToken()
+                );
+
+                // Write the updated user back to Firestore
+                userDocRef.set(updatedUser)
+                        .addOnSuccessListener(aVoid -> Log.d("TAG", "UserRole set to 'user' for user: " + userId))
+                        .addOnFailureListener(e -> Log.w("TAG", "Failed to update UserRole for user: " + userId));
+            }
+        }).addOnFailureListener(e -> Log.w("TAG", "Error fetching user document for UserRole check", e));
+    }
+
+
+
 
     // ... other Firebase operations as needed ...
 

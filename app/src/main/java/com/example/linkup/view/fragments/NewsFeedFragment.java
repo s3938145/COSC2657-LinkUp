@@ -74,6 +74,8 @@ public class NewsFeedFragment extends Fragment {
         setupRecyclerViewScrollListener();
 
         postViewModel.loadPosts();
+
+        userViewModel.fetchAndStoreCurrentUserRole();
     }
 
 
@@ -107,6 +109,7 @@ public class NewsFeedFragment extends Fragment {
     private void setupSwipeRefreshLayout() {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             postViewModel.loadPosts();
+            userViewModel.fetchAndStoreCurrentUserRole();
             updateFilterButtonText("Default");
         });
     }

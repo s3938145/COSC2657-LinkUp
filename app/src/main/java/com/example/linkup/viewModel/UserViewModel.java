@@ -12,6 +12,7 @@ import com.example.linkup.repository.UserRepository;
 import com.example.linkup.service.FirebaseService;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ public class UserViewModel extends AndroidViewModel {
     private MutableLiveData<List<User>> usersLiveData;
     private MutableLiveData<String> errorMessage;
     private final MutableLiveData<User> selectedUser = new MutableLiveData<>();
+    private MutableLiveData<String> currentUserRoleLiveData = new MutableLiveData<>();
 
 
     public UserViewModel(@NonNull Application application) {
@@ -83,6 +85,25 @@ public class UserViewModel extends AndroidViewModel {
                 })
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
+
+    public void fetchAndStoreCurrentUserRole() {
+        FirebaseUser currentUser = userRepository.getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
+            userRepository.getUserRole(currentUserId).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    currentUserRoleLiveData.postValue(task.getResult());
+                } else {
+                    errorMessage.postValue(task.getException().getMessage());
+                }
+            });
+        }
+    }
+
+    public LiveData<String> getCurrentUserRoleLiveData() {
+        return currentUserRoleLiveData;
+    }
+
     public void updateUser(User user) {
         userRepository.updateUser(user)
                 .addOnSuccessListener(aVoid -> userLiveData.postValue(user))

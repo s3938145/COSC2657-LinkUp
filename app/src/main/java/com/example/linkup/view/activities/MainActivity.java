@@ -51,5 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+        // Get current User's Role
+        userViewModel.fetchAndStoreCurrentUserRole();
     }
 }

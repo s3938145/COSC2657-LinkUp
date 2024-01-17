@@ -1,5 +1,6 @@
 package com.example.linkup.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -122,8 +123,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             MenuItem updateMenuItem = popupMenu.getMenu().findItem(R.id.menu_update);
             MenuItem deleteMenuItem = popupMenu.getMenu().findItem(R.id.menu_delete);
 
+            // Initially set the visibility based on isCurrentUser
             updateMenuItem.setVisible(isCurrentUser);
             deleteMenuItem.setVisible(isCurrentUser);
+
+            // Check the user role and adjust visibility if the user is an admin
+            userViewModel.getCurrentUserRoleLiveData().observe(lifecycleOwner, userRole -> {
+                boolean isAdmin = "admin".equals(userRole);
+                Log.d("User Role", "Current user role: " + userRole);
+                if (isAdmin) {
+                    updateMenuItem.setVisible(true);
+                    deleteMenuItem.setVisible(true);
+                }
+            });
 
             updateMenuItem.setOnMenuItemClickListener(item -> {
                 if (position != RecyclerView.NO_POSITION) {
@@ -138,12 +150,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             deleteMenuItem.setOnMenuItemClickListener(item -> {
                 if (position != RecyclerView.NO_POSITION) {
                     showDeleteConfirmationDialog(position, post.getPostId());
+                    return false;
                 }
                 return false;
             });
 
             popupMenu.show();
         }
+
 
         private void onLikeClicked(int position) {
             if (position != RecyclerView.NO_POSITION) {

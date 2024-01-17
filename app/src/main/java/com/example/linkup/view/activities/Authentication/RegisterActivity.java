@@ -92,13 +92,15 @@ public class RegisterActivity extends AppCompatActivity {
                         // Create a new User object with the Firebase UID
                         User newUser = new User(
                                 firebaseAuthUserId,  // Set userId to Firebase Authentication UID
+                                "user",
                                 null,   // Set profileImage to null initially
                                 rmitId,
                                 fullName,
                                 password,   // In a production scenario, consider using password hashing
                                 email,
                                 new ArrayList<>(),  // Initialize an empty friendList
-                                null    // Set courseSchedule to null initially
+                                null,    // Set courseSchedule to null initially
+                                null // Set FCM Token to be null initially
                         );
 
                         // Get a reference to the "users" collection
