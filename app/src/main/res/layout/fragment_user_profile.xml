@@ -6,22 +6,13 @@
     android:background="@android:color/white"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    tools:context=".profile.UserProfile">
+    tools:context=".view.fragments.UserProfileFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="5dp"
         app:cardBackgroundColor="@color/white">
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_menu_24"
-            android:id="@+id/ib_menu_f1"
-            android:layout_margin="10dp"
-            android:background="@android:color/transparent"
-            android:layout_gravity="left|center_vertical"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,15 +23,6 @@
             android:textSize="20sp"
             android:layout_gravity="center"
             android:textStyle="bold"/>
-
-        <ImageButton
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/baseline_edit_24"
-            android:id="@+id/ib_edit_f1"
-            android:layout_margin="10dp"
-            android:background="@android:color/transparent"
-            android:layout_gravity="right|center_vertical"/>
 
     </androidx.cardview.widget.CardView>
     
@@ -189,54 +171,11 @@
         android:layout_marginEnd="20dp"
         android:background="@android:color/darker_gray" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="30dp"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Friends"
-            android:padding="5dp"
-            android:drawablePadding="5dp"
-            android:clickable="true"
-            android:id="@+id/tv_friends_f1"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/black"
-            app:drawableStartCompat="@drawable/baseline_people_24" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Post"
-            android:padding="5dp"
-            android:drawablePadding="5dp"
-            android:drawableStart="@drawable/baseline_post_add_24"
-            android:clickable="true"
-            android:id="@+id/tv_post_f1"
-            android:layout_gravity="center_horizontal"
-            android:textColor="@color/black"/>
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Post"
-        android:textColor="@android:color/holo_red_light"
-        android:textSize="25sp"
-        android:layout_margin="10dp"
-        android:id="@+id/tv_addpost_f1"
-        android:background="@android:color/white"
-        android:gravity="center"/>
-
     <Button
+        android:id="@+id/ib_edit_f1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Message"
+        android:text="Edit"
         android:textSize="18sp"
         android:layout_margin="10dp"/>
 

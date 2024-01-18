@@ -64,6 +64,11 @@
         android:name="com.example.linkup.view.fragments.ShowCourseScheduleFragment"
         android:label="fragment_show_course_schedule"
         tools:layout="@layout/fragment_show_course_schedule" />
+    <fragment
+        android:id="@+id/userProfile"
+        android:name="com.example.linkup.view.fragments.UserProfileFragment"
+        android:label="fragment_user_profile"
+        tools:layout="@layout/fragment_user_profile" />
 
 
 </navigation>

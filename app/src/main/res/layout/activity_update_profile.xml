@@ -6,16 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".UpdateProfile">
-
-    <EditText
-        android:id="@+id/etId2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="RMIT_ID"
-        android:inputType="textPersonName"
-        android:textSize="24sp" />
+    tools:context="profile.UpdateProfile">
 
     <TextView
         android:id="@+id/textView"

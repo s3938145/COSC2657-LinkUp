@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.linkup.R;
 import com.example.linkup.model.User;
+import com.example.linkup.view.fragments.UserProfileFragment;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -161,7 +162,7 @@ public class CreateProfile extends AppCompatActivity {
                                 handler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Intent intent = new Intent(CreateProfile.this, UserProfile.class);
+                                        Intent intent = new Intent(CreateProfile.this, UserProfileFragment.class);
                                         startActivity(intent);
                                     }
                                 }, 2000);

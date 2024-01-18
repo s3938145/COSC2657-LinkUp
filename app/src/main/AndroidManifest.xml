@@ -58,6 +58,9 @@
         <activity
             android:name=".adapter.ChatAdapter"
             android:exported="false" />
+        <activity
+            android:name=".profile.UpdateProfile"
+            android:exported="false" />
     </application>
 
 </manifest>

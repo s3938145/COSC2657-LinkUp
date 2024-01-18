@@ -1,5 +1,6 @@
 package com.example.linkup.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.linkup.R;
+import com.example.linkup.view.activities.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,7 +43,7 @@ public class UpdateProfile extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String currentuid = user.getUid();
 
-        documentReference = db.collection("user").document(currentuid);
+        documentReference = db.collection("users").document(currentuid);
 
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
@@ -65,10 +67,10 @@ public class UpdateProfile extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.getResult().exists()){
-                    String nameResult = task.getResult().getString("name");
-                    String idResult = task.getResult().getString("ID");
-                    String emailResult = task.getResult().getString("Email");
-                    String courseResult = task.getResult().getString("courses");
+                    String nameResult = task.getResult().getString("fullName");
+                    String idResult = task.getResult().getString("rmitId");
+                    String emailResult = task.getResult().getString("email");
+                    String courseResult = task.getResult().getString("courseSchedule");
 
                     etName.setText(nameResult);
                     etID.setText(idResult);
@@ -91,16 +93,16 @@ public class UpdateProfile extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String currentuid = user.getUid();
 
-        final DocumentReference sDoc = db.collection("user").document(currentuid);
+        final DocumentReference sDoc = db.collection("users").document(currentuid);
         db.runTransaction(new Transaction.Function<Void>() {
                     @Override
                     public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
                         //DocumentSnapshot snapshot = transaction.get(sfDocRef);
 
-                        transaction.update(sDoc, "name", name);
-                        transaction.update(sDoc, "Id",id);
+                        transaction.update(sDoc, "fullName", name);
+                        transaction.update(sDoc, "rmitId",id);
                         transaction.update(sDoc, "email", email);
-                        transaction.update(sDoc, "courses", courses);
+                        transaction.update(sDoc, "courseSchedule", courses);
 
                         // Success
                         return null;
@@ -109,6 +111,8 @@ public class UpdateProfile extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(UpdateProfile.this, "updated", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(UpdateProfile.this, MainActivity.class);
+                        startActivity(intent);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
