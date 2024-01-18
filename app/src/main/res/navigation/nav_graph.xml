@@ -1,5 +1,6 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/newsFeedFragment">
 
@@ -7,7 +8,7 @@
         android:id="@+id/newsFeedFragment"
         android:name="com.example.linkup.view.fragments.NewsFeedFragment"
         android:label="news_feed_fragment">
-        <!-- Define an action here -->
+
         <action
             android:id="@+id/action_newsFeedFragment_to_updatePostFragment"
             app:destination="@id/updatePostFragment">
@@ -15,6 +16,15 @@
                 android:name="postId"
                 app:argType="string" />
         </action>
+
+        <action
+            android:id="@+id/action_newsFeedFragment_to_showCourseScheduleFragment"
+            app:destination="@id/showCourseScheduleFragment" >
+        <argument
+            android:name="postId"
+            app:argType="string" />
+        </action>
+
     </fragment>
 
     <fragment
@@ -49,6 +59,11 @@
             android:name="chatId"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/showCourseScheduleFragment"
+        android:name="com.example.linkup.view.fragments.ShowCourseScheduleFragment"
+        android:label="fragment_show_course_schedule"
+        tools:layout="@layout/fragment_show_course_schedule" />
 
 
 </navigation>

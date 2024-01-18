@@ -122,6 +122,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
             MenuItem updateMenuItem = popupMenu.getMenu().findItem(R.id.menu_update);
             MenuItem deleteMenuItem = popupMenu.getMenu().findItem(R.id.menu_delete);
+            MenuItem showCourseScheduleItem = popupMenu.getMenu().findItem(R.id.menu_show_course_schedule);
 
             // Initially set the visibility based on isCurrentUser
             updateMenuItem.setVisible(isCurrentUser);
@@ -153,6 +154,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                     return false;
                 }
                 return false;
+            });
+
+            showCourseScheduleItem.setOnMenuItemClickListener(item -> {
+               if (position != RecyclerView.NO_POSITION) {
+                   NewsFeedFragmentDirections.ActionNewsFeedFragmentToShowCourseScheduleFragment action =
+                           NewsFeedFragmentDirections.actionNewsFeedFragmentToShowCourseScheduleFragment(post.getPostId());
+                   NavigationHelper.navigateToFragment(itemView, action);
+                   return true;
+               }
+               return false;
             });
 
             popupMenu.show();

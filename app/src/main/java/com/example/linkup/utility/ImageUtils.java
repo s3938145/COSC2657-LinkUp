@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
+import com.example.linkup.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -16,12 +17,10 @@ public class ImageUtils {
      *
      * @param imageUrl The URL of the image to load.
      * @param imageView The ImageView to load the image into.
-     * @param context The context.
      */
-    public static void loadImageAsync(String imageUrl, ImageView imageView, Context context) {
+    public static void loadImageAsync(String imageUrl, ImageView imageView) {
         Picasso.get()
                 .load(imageUrl)
-                .centerCrop()    // Optional: crop the image
                 .into(imageView);
     }
 

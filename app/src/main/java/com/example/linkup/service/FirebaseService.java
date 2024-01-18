@@ -34,8 +34,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.example.linkup.model.Post;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class FirebaseService {
 
@@ -124,14 +126,26 @@ public class FirebaseService {
 
     // Firebase Storage methods
     public Task<Uri> uploadImageToStorage(String path, byte[] imageData) {
-        StorageReference imageRef = firebaseStorage.getReference(path);
+        // Generate a unique filename using UUID and timestamp
+        String uniqueFilename = "image_" + UUID.randomUUID().toString() + "_" + System.currentTimeMillis() + ".jpg";
+
+        // Create a reference to the unique file path
+        StorageReference imageRef = firebaseStorage.getReference(path + uniqueFilename);
+
+        // Upload the image data
         return imageRef.putBytes(imageData).continueWithTask(task -> {
-            if (!task.isSuccessful() && task.getException() != null) {
-                throw task.getException();
+            if (!task.isSuccessful()) {
+                if (task.getException() != null) {
+                    throw task.getException();
+                } else {
+                    throw new IOException("Failed to upload image due to unknown error");
+                }
             }
             return imageRef.getDownloadUrl();
         });
     }
+
+
 
     // Realtime Database operations for posts
     public void addPostToDatabase(Post post, FirebaseCallback<Void> callback) {
