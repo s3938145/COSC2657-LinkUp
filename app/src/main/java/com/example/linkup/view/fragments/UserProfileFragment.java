@@ -8,12 +8,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.linkup.R;
-import com.example.linkup.profile.CreateProfile;
 import com.example.linkup.profile.UpdateProfile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -87,8 +87,7 @@ public class UserProfileFragment extends Fragment {
                             etCourses.setText(courseResult);
 
                         }else {
-                            Intent intent = new Intent(getActivity(), CreateProfile.class);
-                            startActivity(intent);
+                            Toast.makeText(getContext(), "failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
