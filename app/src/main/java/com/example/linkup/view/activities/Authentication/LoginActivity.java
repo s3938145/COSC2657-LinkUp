@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.example.linkup.R;
-import com.example.linkup.model.User;
 import com.example.linkup.service.FirebaseService;
 import com.example.linkup.view.activities.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -26,7 +25,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginActivity extends AppCompatActivity {
@@ -162,6 +160,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateFcmToken() {
+
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
