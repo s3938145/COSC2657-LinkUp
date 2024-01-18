@@ -39,10 +39,6 @@ public class UserViewModel extends AndroidViewModel {
         errorMessage = new MutableLiveData<>();
     }
 
-    public LiveData<User> getUserLiveData() {
-        return userLiveData;
-    }
-
     public LiveData<String> getErrorMessage() {
         return errorMessage;
     }

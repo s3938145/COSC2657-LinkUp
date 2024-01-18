@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:text="User Name"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_marginStart="@dimen/view_margin"
         app:layout_constraintStart_toEndOf="@id/imageViewProfile"
         app:layout_constraintTop_toTopOf="@id/imageViewProfile"
         app:layout_constraintBottom_toBottomOf="@id/imageViewProfile" />
@@ -32,9 +33,10 @@
         android:layout_height="wrap_content"
         android:text="user@example.com"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@id/textViewUserName"
-        app:layout_constraintTop_toBottomOf="@id/textViewUserName"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/textViewUserName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -225,15 +225,14 @@ public class FirebaseService {
                     return Transaction.success(mutableData);
                 }
 
-                List<String> likedByUsers = p.getLikedByUsers() != null ? new ArrayList<>(p.getLikedByUsers()) : new ArrayList<>();
+                List<String> likedByUsers = new ArrayList<>(p.getLikedByUsers());
                 if (likedByUsers.contains(userId)) {
                     likedByUsers.remove(userId);
                 } else {
                     likedByUsers.add(userId);
                 }
 
-                Post updatedPost = new Post(p.getPostId(), p.getPosterId(), p.getPostContent(), p.getPostDate(), likedByUsers);
-                mutableData.setValue(updatedPost);
+                mutableData.setValue(new Post(p.getPostId(), p.getPosterId(), p.getPostContent(), p.getPostDate(), likedByUsers));
                 return Transaction.success(mutableData);
             }
 
@@ -247,6 +246,8 @@ public class FirebaseService {
             }
         });
     }
+
+
 
     public void updateFcmTokenForCurrentUser(String newToken) {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -275,27 +276,14 @@ public class FirebaseService {
         userDocRef.get().addOnSuccessListener(documentSnapshot -> {
             User user = documentSnapshot.toObject(User.class);
             if (user != null && (user.getUserRole() == null || user.getUserRole().isEmpty())) {
-                // Create a new User object with updated userRole
-                User updatedUser = new User(
-                        user.getUserId(),
-                        "user", // Set userRole to "user"
-                        user.getProfileImage(),
-                        user.getRmitId(),
-                        user.getFullName(),
-                        user.getPassword(), // Consider storing only password hash instead of plain text
-                        user.getEmail(),
-                        user.getFriendList(),
-                        user.getCourseSchedule(),
-                        user.getFcmToken()
-                );
-
-                // Write the updated user back to Firestore
-                userDocRef.set(updatedUser)
+                // Update only the userRole field in Firestore
+                userDocRef.update("userRole", "user")
                         .addOnSuccessListener(aVoid -> Log.d("TAG", "UserRole set to 'user' for user: " + userId))
                         .addOnFailureListener(e -> Log.w("TAG", "Failed to update UserRole for user: " + userId));
             }
         }).addOnFailureListener(e -> Log.w("TAG", "Error fetching user document for UserRole check", e));
     }
+
 
 
 

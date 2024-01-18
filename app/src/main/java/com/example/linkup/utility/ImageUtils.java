@@ -58,7 +58,7 @@ public class ImageUtils {
      */
     public static byte[] compressImage(Bitmap image, int quality) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, quality, stream);
+        image.compress(Bitmap.CompressFormat.PNG, quality, stream);
         return stream.toByteArray();
     }
 

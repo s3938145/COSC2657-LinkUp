@@ -154,7 +154,7 @@ public class PostViewModel extends AndroidViewModel {
         postRepository.toggleLikeOnPost(postId, new FirebaseService.FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                loadPosts();
+                loadPosts(); // Reload posts after a like action
             }
 
             @Override
