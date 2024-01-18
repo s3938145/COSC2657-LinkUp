@@ -1,17 +1,69 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/newsFeedFragment">
 
     <fragment
         android:id="@+id/newsFeedFragment"
         android:name="com.example.linkup.view.fragments.NewsFeedFragment"
-        android:label="news_feed_fragment" />
+        android:label="news_feed_fragment">
+
+        <action
+            android:id="@+id/action_newsFeedFragment_to_updatePostFragment"
+            app:destination="@id/updatePostFragment">
+            <argument
+                android:name="postId"
+                app:argType="string" />
+        </action>
+
+        <action
+            android:id="@+id/action_newsFeedFragment_to_showCourseScheduleFragment"
+            app:destination="@id/showCourseScheduleFragment" >
+        <argument
+            android:name="postId"
+            app:argType="string" />
+        </action>
+
+    </fragment>
 
     <fragment
         android:id="@+id/createPostFragment"
         android:name="com.example.linkup.view.fragments.CreatePostFragment"
         android:label="create_post_fragment" />
 
-    <!-- Define other fragments here if needed -->
+    <fragment
+        android:id="@+id/updatePostFragment"
+        android:name="com.example.linkup.view.fragments.UpdatePostFragment"
+        android:label="update_post_fragment">
+        <argument
+            android:name="postId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/messageScreenFragment"
+        android:name="com.example.linkup.view.fragments.MessageScreenFragment"
+        android:label="message_screen_fragment">
+        <action
+            android:id="@+id/action_messageScreenFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.linkup.view.fragments.ChatFragment"
+        android:label="chat_fragment">
+        <!-- Add any necessary arguments here -->
+        <argument
+            android:name="chatId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/showCourseScheduleFragment"
+        android:name="com.example.linkup.view.fragments.ShowCourseScheduleFragment"
+        android:label="fragment_show_course_schedule"
+        tools:layout="@layout/fragment_show_course_schedule" />
+
+
 </navigation>

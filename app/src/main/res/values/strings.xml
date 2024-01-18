@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Link Up</string>
     <string name="default_web_client_id">Y656524230597-2lrst6orc7akkb6el2n2193gm74p6jq4.apps.googleusercontent.com</string>
+    <string name="default_notification_channel_id">com.google.firebase.messaging.default_notification_channel_id</string>
     <string name="chat_message_hint">Type your message here</string>
     <string name="send">Send</string>
     <string name="view_margin">8dp</string>

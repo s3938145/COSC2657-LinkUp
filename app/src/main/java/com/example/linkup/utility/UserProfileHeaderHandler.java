@@ -18,8 +18,7 @@ public class UserProfileHeaderHandler {
         TextView textViewUserEmail = rootView.findViewById(R.id.textViewUserEmail);
 
         // Fetch user data
-        userViewModel.getUser(userId);
-        userViewModel.getUserLiveData().observe(lifecycleOwner, user -> {
+        userViewModel.getUserLiveData(userId).observe(lifecycleOwner, user -> {
             if (user != null && user.getUserId().equals(userId)) {
                 textViewUserName.setText(user.getFullName());
                 textViewUserEmail.setText(user.getEmail());
@@ -30,6 +29,7 @@ public class UserProfileHeaderHandler {
         });
     }
 }
+
 
 
 

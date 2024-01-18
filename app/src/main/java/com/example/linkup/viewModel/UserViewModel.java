@@ -12,20 +12,28 @@ import com.example.linkup.repository.UserRepository;
 import com.example.linkup.service.FirebaseService;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserViewModel extends AndroidViewModel {
 
     private UserRepository userRepository;
+    private Map<String, MutableLiveData<User>> userCache;
     private MutableLiveData<User> userLiveData;
     private MutableLiveData<List<User>> usersLiveData;
     private MutableLiveData<String> errorMessage;
+    private final MutableLiveData<User> selectedUser = new MutableLiveData<>();
+    private MutableLiveData<String> currentUserRoleLiveData = new MutableLiveData<>();
+
 
     public UserViewModel(@NonNull Application application) {
         super(application); // Call the super constructor with the application context
         FirebaseService firebaseService = new FirebaseService(application.getApplicationContext());
         userRepository = new UserRepository(firebaseService);
+        userCache = new HashMap<>();
         userLiveData = new MutableLiveData<>();
         usersLiveData = new MutableLiveData<>();
         errorMessage = new MutableLiveData<>();
@@ -55,13 +63,45 @@ public class UserViewModel extends AndroidViewModel {
                 });
     }
 
-    public void getUser(String userId) {
+    public LiveData<User> getUserLiveData(String userId) {
+        if (!userCache.containsKey(userId)) {
+            MutableLiveData<User> newUserLiveData = new MutableLiveData<>();
+            userCache.put(userId, newUserLiveData);
+            fetchUser(userId);
+        }
+        return userCache.get(userId);
+    }
+
+    private void fetchUser(String userId) {
         userRepository.getUser(userId)
                 .addOnSuccessListener(documentSnapshot -> {
                     User user = documentSnapshot.toObject(User.class);
-                    userLiveData.postValue(user);
+                    if (user != null) {
+                        MutableLiveData<User> liveData = userCache.get(userId);
+                        if (liveData != null) {
+                            liveData.postValue(user);
+                        }
+                    }
                 })
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
+    }
+
+    public void fetchAndStoreCurrentUserRole() {
+        FirebaseUser currentUser = userRepository.getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
+            userRepository.getUserRole(currentUserId).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    currentUserRoleLiveData.postValue(task.getResult());
+                } else {
+                    errorMessage.postValue(task.getException().getMessage());
+                }
+            });
+        }
+    }
+
+    public LiveData<String> getCurrentUserRoleLiveData() {
+        return currentUserRoleLiveData;
     }
 
     public void updateUser(User user) {
@@ -86,7 +126,25 @@ public class UserViewModel extends AndroidViewModel {
                 .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
     }
 
-    // Additional methods and logic as needed...
+    public LiveData<List<User>> getUsersLiveData() {
+        return usersLiveData;
+    }
+
+    public void fetchUsers() {
+        userRepository.getAllUsers()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                    usersLiveData.postValue(users);
+                })
+                .addOnFailureListener(e -> errorMessage.postValue(e.getMessage()));
+    }
+    public void setSelectedUser(User user) {
+        selectedUser.setValue(user);
+    }
+
+    public LiveData<User> getSelectedUser() {
+        return selectedUser;
+    }
 }
 
 

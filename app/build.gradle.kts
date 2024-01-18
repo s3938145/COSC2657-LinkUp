@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs")
 }
 
 android {
@@ -13,8 +14,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
-        multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,19 +39,18 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
+    implementation ("com.google.firebase:firebase-messaging")
     implementation ("com.squareup.picasso:picasso:2.71828")
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("androidx.navigation:navigation-runtime:2.7.6")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
-    implementation ("com.squareup.picasso:picasso:2.71828")
-    //noinspection GradleCompatible
-    implementation ("com.androidx.support:cardview-v7:28.0.0")
-    implementation ("com.androidx.support:multidex:1.0.3")
+    implementation ("androidx.navigation:navigation-fragment:2.7.6")
+    implementation ("androidx.navigation:navigation-ui:2.7.6")
 }
