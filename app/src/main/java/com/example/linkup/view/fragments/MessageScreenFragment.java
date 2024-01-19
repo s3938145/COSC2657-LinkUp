@@ -1,5 +1,6 @@
 package com.example.linkup.view.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +14,14 @@ import com.example.linkup.R;
 import com.example.linkup.adapter.UserAdapter;
 import com.example.linkup.model.User;
 import com.example.linkup.utility.NavigationHelper;
+import com.example.linkup.view.activities.ChatActivity;
 import com.example.linkup.viewModel.UserViewModel;
+import com.example.linkup.service.FirebaseService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
-
-// MessageScreenFragment.java
 
 public class MessageScreenFragment extends Fragment {
 
@@ -53,18 +56,37 @@ public class MessageScreenFragment extends Fragment {
         return view;
     }
 
-
     private void onUsersReceived(List<User> users) {
-        userAdapter.setUserList(users);
+        String currentUserId = getCurrentUserId();
+
+        List<User> filteredUsers = new ArrayList<>();
+
+        for (User user : users) {
+            if (user != null && !user.getUserId().equals(currentUserId)) {
+                filteredUsers.add(user);
+            }
+        }
+
+        userAdapter.setUserList(filteredUsers);
     }
 
     private void navigateToChatFragment(User user) {
-        userViewModel.setSelectedUser(user);
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
 
-        // Pass the user ID or other necessary data to the ChatFragment
-        Bundle args = new Bundle();
-        args.putString("userId", user.getUserId());
-        Navigation.findNavController(requireView()).navigate(R.id.action_messageScreenFragment_to_chatFragment, args);
+        // Pass the receiverUserId to ChatActivity
+        intent.putExtra("receiverUserId", user.getUserId());
+
+        startActivity(intent);
+    }
+
+    private String getCurrentUserId() {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+        if (currentUser != null) {
+            return currentUser.getUid();
+        } else {
+            return null;
+        }
     }
 }
-

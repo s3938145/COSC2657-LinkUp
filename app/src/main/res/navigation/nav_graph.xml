@@ -45,20 +45,8 @@
         android:id="@+id/messageScreenFragment"
         android:name="com.example.linkup.view.fragments.MessageScreenFragment"
         android:label="message_screen_fragment">
-        <action
-            android:id="@+id/action_messageScreenFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/chatFragment"
-        android:name="com.example.linkup.view.fragments.ChatFragment"
-        android:label="chat_fragment">
-        <!-- Add any necessary arguments here -->
-        <argument
-            android:name="chatId"
-            app:argType="string" />
-    </fragment>
 
     <fragment
         android:id="@+id/showCourseScheduleFragment"
