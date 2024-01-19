@@ -38,8 +38,6 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     ArrayList<Message> m;
 
-
-    // Receiver's user ID obtained from MessageScreenFragment
     private String receiverUserId;
 
     @Override
@@ -69,15 +67,11 @@ public class ChatActivity extends AppCompatActivity {
 
         String receiverUserId = getIntent().getStringExtra("receiverUserId");
 
-        // Use receiverUserId in your logic
         if (receiverUserId != null) {
             sendButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // Retrieve the message text
                     String messageText = messageEditText.getText().toString().trim();
-
-                    // Call the sendMessage method with the receiverUserId
                     sendMessage(receiverUserId, messageText);
                 }
             });
@@ -98,25 +92,20 @@ public class ChatActivity extends AppCompatActivity {
             }
 
 
-
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {
-                // Not used in this example
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-                // Not used in this example
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {
-                // Not used in this example
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle errors
             }
         });
 
@@ -127,14 +116,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage(String receiverUserId, String messageText) {
         if (currentUser != null && !messageText.isEmpty()) {
-            // Create a Message object
             String senderUserId = currentUser.getUid();
             Message message = new Message(senderUserId, receiverUserId, messageText, System.currentTimeMillis());
-
-            // Push the message to Firebase Realtime Database under the specific user's node
             messagesReference.child(receiverUserId).push().setValue(message);
-
-            // Clear the input field
             messageEditText.setText("");
         }
     }
@@ -142,12 +126,9 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here.
-        int id = item.getItemId();
 
+        int id = item.getItemId();
         if (id == android.R.id.home) {
-            // This is the ID of the back button
-            // Navigate back to MessageScreenFragment or finish() to close the activity
             onBackPressed();
             return true;
         }
