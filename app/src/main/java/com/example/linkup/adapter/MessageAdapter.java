@@ -11,12 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
+import com.example.linkup.model.ChatSession;
 import com.example.linkup.model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -76,6 +78,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyItemInserted(messages.size() - 1);
     }
 
+    public void setMessages(Map<String, Message> messageMap) {
+        Log.d("MessageAdapter", "setMessages called with " + messageMap.size() + " messages");
+        messages.clear();
+        messages.addAll(new ArrayList<>(messageMap.values()));
+        notifyDataSetChanged();
+    }
+
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         CircleImageView profilePic;
         TextView messageText;
@@ -83,9 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.messageTextView);
-            profilePic = itemView.findViewById(R.id.profileImage);
         }
-
 
         public void bindSenderMessage(Message message) {
             profilePic = itemView.findViewById(R.id.profilesender);
@@ -99,5 +106,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             messageText.setText(message.getText());
         }
     }
+
 }
 

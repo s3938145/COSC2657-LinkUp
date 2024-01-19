@@ -25,6 +25,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="5dp"
         android:layout_toRightOf="@id/profilereceiver"
+        android:text="Testing text"
         android:padding="7dp"
         android:textColor="@color/black"
         android:textStyle="bold" />
