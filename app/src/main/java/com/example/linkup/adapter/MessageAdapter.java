@@ -5,20 +5,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Message;
+import com.example.linkup.viewModel.UserViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -27,8 +29,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private List<Message> messages = new ArrayList<>();
     private String currentUserId;
+    private static UserViewModel userViewModel;
+    private static LifecycleOwner lifecycleOwner;
 
-    public MessageAdapter() {
+    public MessageAdapter(UserViewModel userViewModel, LifecycleOwner lifecycleOwner) {
+        this.userViewModel = userViewModel;
+        this.lifecycleOwner = lifecycleOwner;
+
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         currentUserId = (currentUser != null) ? currentUser.getUid() : "";
     }
@@ -44,7 +51,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
-
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_SENDER:
                 holder.bindSenderMessage(message);
@@ -63,7 +69,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemViewType(int position) {
         Message message = messages.get(position);
-
         if (currentUserId.equals(message.getSenderId())) {
             return VIEW_TYPE_SENDER;
         } else {
@@ -77,27 +82,37 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView profilePic;
+        ImageView profilePic;
         TextView messageText;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.messageTextView);
-            profilePic = itemView.findViewById(R.id.profileImage);
+            profilePic = itemView.findViewById(R.id.profileImage); // Ensure this ID matches your layout
         }
-
 
         public void bindSenderMessage(Message message) {
             profilePic = itemView.findViewById(R.id.profilesender);
-            TextView messageText = itemView.findViewById(R.id.senderText);
+            messageText = itemView.findViewById(R.id.senderText);
             messageText.setText(message.getText());
+            loadProfileImage(message.getSenderId());
         }
 
         public void bindReceiverMessage(Message message) {
             profilePic = itemView.findViewById(R.id.profilereceiver);
-            TextView messageText = itemView.findViewById(R.id.receiverText);
+            messageText = itemView.findViewById(R.id.receiverText);
             messageText.setText(message.getText());
+            loadProfileImage(message.getSenderId());
+        }
+
+        private void loadProfileImage(String userId) {
+            userViewModel.getUserLiveData(userId).observe(lifecycleOwner, user -> {
+                if (user != null && user.getUserId().equals(userId) && user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                    Picasso.get().load(user.getProfileImage()).into(profilePic);
+                }
+            });
         }
     }
 }
+
 
