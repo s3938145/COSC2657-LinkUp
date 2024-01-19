@@ -15,6 +15,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.linkup.R;
 import com.example.linkup.model.Post;
@@ -30,8 +32,7 @@ public class ShowCourseScheduleFragment extends Fragment {
     private ImageView imageViewCourseSchedule;
     private TextView textViewUserNameSchedule;
     private UserViewModel userViewModel;
-    private PostViewModel postViewModel;
-    private String postId;
+    private String userId;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,45 +42,31 @@ public class ShowCourseScheduleFragment extends Fragment {
         textViewUserNameSchedule = view.findViewById(R.id.textViewUserNameSchedule);
 
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
-        postViewModel = new ViewModelProvider(requireActivity()).get(PostViewModel.class);
 
-        Button buttonClose = view.findViewById(R.id.buttonClose); // Button to close the fragment
+        Button buttonClose = view.findViewById(R.id.buttonClose);
         buttonClose.setOnClickListener(v -> closeFragment());
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            postId = arguments.getString("postId");
-            if (postId != null && !postId.isEmpty()) {
-                loadPostDetails(postId);
+            userId = arguments.getString("userId");
+            if (userId != null && !userId.isEmpty()) {
+                loadUserDetails(userId);
             }
         }
-        Log.d("Course Schedule Fragment", "The current post ID is: " + postId);
+        Log.d("Course Schedule Fragment", "The current user ID is: " + userId);
         return view;
     }
 
-    private void loadPostDetails(String postId) {
-        LiveData<Post> postLiveData = postViewModel.getPostById(postId);
-
-        postLiveData.observe(getViewLifecycleOwner(), post -> {
-            if (post != null) {
-                loadUserCourseSchedule(post.getPosterId());
-            } else {
-                Toast.makeText(getContext(), "Post not found or error occurred", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void loadUserCourseSchedule(String userId) {
+    private void loadUserDetails(String userId) {
         LiveData<User> userLiveData = userViewModel.getUserLiveData(userId);
 
-        Log.d("Course Schedule Fragment", "The current user ID is: " + userId);
         userLiveData.observe(getViewLifecycleOwner(), user -> {
             if (user != null && user.getCourseSchedule() != null && !user.getCourseSchedule().isEmpty()) {
                 textViewUserNameSchedule.setText(user.getFullName() + "'s Course Schedule");
                 ImageUtils.loadImageAsync(user.getCourseSchedule(), imageViewCourseSchedule);
 
                 imageViewCourseSchedule.setVisibility(View.VISIBLE); // Make the image view visible
-                // Reset the text view to be above the image view
+                // Adjust the text view to be above the image view
                 ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) textViewUserNameSchedule.getLayoutParams();
                 layoutParams.bottomToTop = imageViewCourseSchedule.getId();
                 textViewUserNameSchedule.setLayoutParams(layoutParams);
@@ -89,7 +76,7 @@ public class ShowCourseScheduleFragment extends Fragment {
 
                 imageViewCourseSchedule.setVisibility(View.GONE); // Hide the image view
 
-                // Set the text view to be centered in the parent ConstraintLayout
+                // Center the text view in the parent ConstraintLayout
                 ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) textViewUserNameSchedule.getLayoutParams();
                 layoutParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
                 layoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
@@ -99,9 +86,10 @@ public class ShowCourseScheduleFragment extends Fragment {
         });
     }
 
-
     private void closeFragment() {
-        // Logic to close or pop the fragment from the stack
-        NavigationHelper.navigateToFragment(requireView(), R.id.newsFeedFragment);
+        // Logic to pop the fragment from the stack
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.popBackStack();
     }
 }
+

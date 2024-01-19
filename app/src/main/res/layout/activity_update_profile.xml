@@ -16,14 +16,14 @@
         android:textAlignment="center"
         android:textColor="@color/design_default_color_error"
         android:textSize="@dimen/text_size_title"
-        app:layout_constraintBottom_toTopOf="@+id/imagePicker"
+        app:layout_constraintBottom_toTopOf="@+id/profilePicker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5" />
 
     <ImageView
-        android:id="@+id/imagePicker"
+        android:id="@+id/profilePicker"
         android:layout_width="200dp"
         android:layout_height="200dp"
         app:layout_constraintBottom_toTopOf="@+id/etName"
@@ -38,7 +38,7 @@
         android:id="@+id/groupAllViews"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="textView, imagePicker, etName, etEmail, etId, etCourses, btnSave"
+        app:constraint_referenced_ids="textView, profilePicker, etName, etEmail, etId, courseSchedule, btnSave"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -54,7 +54,7 @@
         android:ems="10"
         android:hint="Name"
         android:inputType="textPersonName"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_title_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/groupAllViews" />
@@ -66,7 +66,7 @@
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_title_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etName" />
@@ -76,21 +76,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="RMIT_ID"
+        android:hint="RMIT ID"
         android:inputType="textPersonName"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_title_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etEmail" />
 
-    <EditText
-        android:id="@+id/etCourses"
+    <TextView
+        android:id="@+id/courseSchedule"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Courses"
-        android:inputType="textPersonName"
-        android:textSize="24sp"
+        android:text="Upload Course Schedule"
+        android:textSize="@dimen/text_size_title_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etId" />
@@ -102,7 +101,7 @@
         android:text="Save Profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etCourses" />
+        app:layout_constraintTop_toBottomOf="@id/courseSchedule" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

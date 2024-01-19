@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,18 +33,22 @@ import com.google.firebase.firestore.Transaction;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class UpdateProfile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PICK_COURSE_IMAGE_REQUEST = 2;
     private Uri imageUri;
+    private Uri courseImageUri;
     private UserViewModel userViewModel;
     private FirebaseService firebaseService;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     // UI Components
-    ImageView imagePicker; // Assuming this is your ImageView for picking the image
-    EditText etName, etEmail, etID, etCourses;
+    ImageView profilePicker;
+    EditText etName, etEmail, etID;
+    TextView coursePicker;
     Button btnSave;
 
     @Override
@@ -59,18 +64,18 @@ public class UpdateProfile extends AppCompatActivity {
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etID = findViewById(R.id.etId);
-        etCourses = findViewById(R.id.etCourses);
         btnSave = findViewById(R.id.btnSave);
-        imagePicker = findViewById(R.id.imagePicker); // Replace with your actual ImageView ID
+        coursePicker = findViewById(R.id.courseSchedule);
+        profilePicker = findViewById(R.id.profilePicker);
 
-        // Set listeners
-        imagePicker.setOnClickListener(v -> openFileChooser());
+        // Set listeners for uploading profile icon
+        profilePicker.setOnClickListener(v -> openFileChooserForProfile());
+
+        // Set listeners for uploading course schedule
+        coursePicker.setOnClickListener(v -> openFileChooserForCourse());
+
         btnSave.setOnClickListener(view -> {
-            if (imageUri != null) {
-                fetchProfile();
-            } else {
-                fetchProfile();
-            }
+            fetchProfile();
         });
 
         // Fetch and observe user data
@@ -87,64 +92,95 @@ public class UpdateProfile extends AppCompatActivity {
                     etName.setText(user.getFullName());
                     etEmail.setText(user.getEmail());
                     etID.setText(user.getRmitId());
-                    etCourses.setText(user.getCourseSchedule());
+                    coursePicker.setText(user.getCourseSchedule());
 
                     if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                        ImageUtils.loadImageAsync(user.getProfileImage(),imagePicker);
+                        ImageUtils.loadImageAsync(user.getProfileImage(),profilePicker);
                     }
                 }
             });
         }
     }
 
-    private void openFileChooser() {
+    private void openFileChooserForProfile() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+
+    private void openFileChooserForCourse() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_COURSE_IMAGE_REQUEST);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            // You can also update an ImageView to show the selected image
-             imagePicker.setImageURI(imageUri);
+        if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+            if (requestCode == PICK_IMAGE_REQUEST) {
+                // Handle profile image selection
+                imageUri = data.getData();
+                profilePicker.setImageURI(imageUri);
+            } else if (requestCode == PICK_COURSE_IMAGE_REQUEST) {
+                // Handle course schedule image selection
+                courseImageUri = data.getData();
+                // Update the coursePicker TextView or ImageView as per your UI
+                 coursePicker.setText(courseImageUri.toString());
+            }
         }
     }
+
+
 
 
     private void fetchProfile() {
         String name = etName.getText().toString();
         String id = etID.getText().toString();
         String email = etEmail.getText().toString();
-        String courses = etCourses.getText().toString();
+        String courses = coursePicker.getText().toString();
 
-        Log.d("Image URI", String.valueOf(imageUri));
+        Log.d("Profile Image URI", String.valueOf(imageUri));
+        Log.d("Course Image URI", String.valueOf(courseImageUri)); // Assuming courseImageUri is the Uri for the course image
 
         if (imageUri != null && !Objects.requireNonNull(imageUri.getScheme()).startsWith("http")) {
-            try {
-                InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                byte[] imageData = ImageUtils.compressImage(bitmap,60);
-
-                // Upload the compressed image to Firebase Storage
-                firebaseService.uploadImageToStorage("profile_images/", imageData )
-                        .addOnSuccessListener(uri -> {
-                            String profileImageUri = uri.toString();
-                            updateProfile(profileImageUri, name, id, email, courses);
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(UpdateProfile.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
-                        });
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            uploadImage(imageUri, "profile_images/", profileImageUri -> {
+                if (courseImageUri != null && !Objects.requireNonNull(courseImageUri.getScheme()).startsWith("http")) {
+                    uploadImage(courseImageUri, "course_images/", courseImageUri -> {
+                        updateProfile(profileImageUri, name, id, email, courseImageUri.toString());
+                    });
+                } else {
+                    updateProfile(profileImageUri, name, id, email, (String) coursePicker.getText());
+                }
+            });
         } else {
-            updateProfile(null, name, id, email, courses);
+            if (courseImageUri != null && !Objects.requireNonNull(courseImageUri.getScheme()).startsWith("http")) {
+                uploadImage(courseImageUri, "course_images/", courseImageUri -> {
+                    updateProfile(null, name, id, email, courseImageUri.toString());
+                });
+            } else {
+                updateProfile((String) null, name, id, email, (String) coursePicker.getText());
+            }
         }
     }
+
+    private void uploadImage(Uri imageUri, String path, Consumer<String> onSuccess) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            byte[] imageData = ImageUtils.compressImage(bitmap, 60);
+
+            firebaseService.uploadImageToStorage(path, imageData)
+                    .addOnSuccessListener(uri -> onSuccess.accept(uri.toString()))
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(UpdateProfile.this, "Failed to upload image.", Toast.LENGTH_SHORT).show();
+                    });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void updateProfile(String profile, String name, String id, String email, String courses) {
         FirebaseUser user = firebaseService.getCurrentUser();

@@ -159,7 +159,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             showCourseScheduleItem.setOnMenuItemClickListener(item -> {
                if (position != RecyclerView.NO_POSITION) {
                    NewsFeedFragmentDirections.ActionNewsFeedFragmentToShowCourseScheduleFragment action =
-                           NewsFeedFragmentDirections.actionNewsFeedFragmentToShowCourseScheduleFragment(post.getPostId());
+                           NewsFeedFragmentDirections.actionNewsFeedFragmentToShowCourseScheduleFragment(post.getPosterId());
                    NavigationHelper.navigateToFragment(itemView, action);
                    return true;
                }
