@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
 import com.example.linkup.adapter.MessageAdapter;
+import com.example.linkup.model.ChatSession;
 import com.example.linkup.model.Message;
 import com.example.linkup.utility.GenerateIdUtils;
 import com.example.linkup.viewModel.UserViewModel;
@@ -59,6 +60,7 @@ public class ChatActivity extends AppCompatActivity {
         m = new ArrayList<>();
 
         messageAdapter = new MessageAdapter(userViewModel, this);
+
         recyclerView.setAdapter(messageAdapter);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -81,29 +83,34 @@ public class ChatActivity extends AppCompatActivity {
             });
         }
 
+
         chatId = GenerateIdUtils.generateChatId(currentUser.getUid(), receiverUserId);
 
         Log.d("Chat ID", chatId);
 
         messagesReference = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
         messagesReference.addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
                 if (snapshot.exists()) {
-                    Message message = snapshot.getValue(Message.class);
-                    if (message != null) {
-                        Log.d("ChatActivity", "Message added: " + message.getText());
-                        messageAdapter.addMessage(message);
+                    ChatSession chatSession = snapshot.getValue(ChatSession.class);
+                    Log.d("ChatActivity", "DataSnapshot: " + snapshot.getValue());
+                    if (chatSession != null && chatSession.getMessages() != null) {
+                        Log.d("ChatActivity", "Messages received: " + chatSession.getMessages().size());
+                        messageAdapter.setMessages(chatSession.getMessages());
                         recyclerView.scrollToPosition(messageAdapter.getItemCount() - 1);
                     }
                 } else {
-                    Log.d("ChatActivity", "Received null message");
+                    Log.d("ChatActivity", "Received null chat session");
                 }
             }
 
 
+
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {
+                Log.d("ChatActivity", "DataSnapshot changed: " + snapshot.getValue());
             }
 
             @Override
@@ -128,9 +135,15 @@ public class ChatActivity extends AppCompatActivity {
         if (currentUser != null && !messageText.isEmpty()) {
             String senderUserId = currentUser.getUid();
             Message message = new Message(senderUserId, receiverUserId, messageText, System.currentTimeMillis());
+
             messagesReference.push().setValue(message);
+
             messageEditText.setText("");
+            Log.d("ChatActivity", "Sending message: " + messageText);
         }
+    }
+    private String getChatKey(String userId1, String userId2) {
+        return (userId1.compareTo(userId2) < 0) ? userId1 + "_" + userId2 : userId2 + "_" + userId1;
     }
 
 
@@ -142,7 +155,6 @@ public class ChatActivity extends AppCompatActivity {
             onBackPressed();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
