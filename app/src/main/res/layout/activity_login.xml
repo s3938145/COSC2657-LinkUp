@@ -4,81 +4,105 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activities.Authentication.LoginActivity"
-    android:background="@drawable/loginbackround">
+    tools:context=".view.activities.Authentication.LoginActivity">
+
+    <ImageView
+        android:id="@+id/topImage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@mipmap/ic_linkup_icon_foreground"
+        app:layout_constraintBottom_toTopOf="@+id/editTextEmail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <EditText
         android:id="@+id/editTextEmail"
         android:layout_width="0dp"
         android:layout_height="@dimen/view_height"
-        android:hint="Email"
-        android:textSize="@dimen/text_size_title_2"
         android:layout_marginHorizontal="@dimen/view_margin"
         android:layout_marginBottom="@dimen/view_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/editTextPassword"
+        android:background="@drawable/rounded_edit_text"
+        android:hint="Email"
+        android:paddingLeft="@dimen/view_padding"
+        android:textSize="@dimen/text_size_title_2"
+        app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topImage"
+        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="0dp"
         android:layout_height="@dimen/view_height"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:textSize="@dimen/text_size_title_2"
         android:layout_marginHorizontal="@dimen/view_margin"
         android:layout_marginBottom="@dimen/view_margin"
-        app:layout_constraintBottom_toTopOf="@id/btnEmailLogin"
+        android:background="@drawable/rounded_edit_text"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:paddingLeft="@dimen/view_padding"
+        android:textSize="@dimen/text_size_title_2"
+        app:layout_constraintBottom_toTopOf="@+id/btnEmailLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editTextEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextEmail"
+        app:layout_constraintVertical_bias="0.5" />
 
     <Button
         android:id="@+id/btnEmailLogin"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/view_height"
-        android:text="Login with Email"
         android:layout_marginBottom="@dimen/view_margin"
-        app:layout_constraintBottom_toTopOf="@id/btnGoogleLogin"
+        android:background="@drawable/rounded_button"
+        android:text="Login with Email"
+        app:layout_constraintBottom_toTopOf="@+id/btnGoogleLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextPassword"
+        app:layout_constraintVertical_bias="0.5" />
 
     <Button
         android:id="@+id/btnGoogleLogin"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/view_height"
-        android:text="Login with Google"
         android:layout_marginBottom="@dimen/view_margin"
-        app:layout_constraintBottom_toTopOf="@id/txtRegister"
+        android:background="@drawable/rounded_button"
+        android:text="Login with Google"
+        app:layout_constraintBottom_toTopOf="@+id/txtRegister"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnEmailLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/btnEmailLogin"
+        app:layout_constraintVertical_bias="0.5" />
 
     <TextView
         android:id="@+id/txtRegister"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/view_height"
-        android:text="Don't have an account? Register here"
         android:layout_marginBottom="@dimen/view_margin"
-        app:layout_constraintBottom_toTopOf="@id/txtForgotPassword"
+        android:text="Don't have an account? Register here"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/txtForgotPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnGoogleLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/btnGoogleLogin"
+        app:layout_constraintVertical_bias="0.5" />
 
     <TextView
         android:id="@+id/txtForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/view_height"
-        android:text="Forgot Password?"
         android:layout_marginBottom="@dimen/view_margin"
+        android:text="Forgot Password?"
+        android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtRegister" />
+        app:layout_constraintTop_toBottomOf="@+id/txtRegister"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
