@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".view.activities.Authentication.RegisterActivity">
+    tools:context=".view.activities.Authentication.RegisterActivity"
+    android:background="@drawable/signupbackgound">
 
     <EditText
         android:id="@+id/editTextFullName"

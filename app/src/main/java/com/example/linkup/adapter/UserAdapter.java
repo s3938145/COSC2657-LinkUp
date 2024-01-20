@@ -36,10 +36,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return new UserViewHolder(view);
     }
 
-    @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = userList.get(position);
         holder.bind(user);
+        holder.recentMessageDot.setVisibility(user.hasRecentMessage() ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -51,11 +51,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         private ImageView imageViewUser;
         private TextView textViewUserName;
+        public View recentMessageDot;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             imageViewUser = itemView.findViewById(R.id.imageViewUser);
             textViewUserName = itemView.findViewById(R.id.textViewUserName);
+            recentMessageDot = itemView.findViewById(R.id.recentMessageDot);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -63,12 +65,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                     onUserClickListener.onUserClick(userList.get(position));
                 }
             });
+
         }
 
         public void bind(User user) {
             textViewUserName.setText(user.getFullName());
-
-            // Load the user's picture using Picasso (or any other image loading library)
             Picasso.get().load(user.getProfileImage()).placeholder(R.drawable.ic_profile_place_holder).into(imageViewUser);
         }
     }
@@ -79,6 +80,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
     public void setOnUserClickListener(OnUserClickListener onUserClickListener) {
         this.onUserClickListener = onUserClickListener;
+    }
+    public List<User> getUserList() {
+        return userList;
     }
 
 }

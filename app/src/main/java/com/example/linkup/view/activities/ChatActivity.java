@@ -128,7 +128,7 @@ public class ChatActivity extends AppCompatActivity {
     private void sendMessage(String receiverUserId, String messageText) {
         if (currentUser != null && !messageText.isEmpty()) {
             String senderUserId = currentUser.getUid();
-            Message message = new Message(senderUserId, receiverUserId, messageText, System.currentTimeMillis());
+            Message message = new Message(senderUserId, receiverUserId, messageText, System.currentTimeMillis(), false);
             messagesReference.push().setValue(message);
             messageEditText.setText("");
         }

@@ -1,7 +1,5 @@
 package com.example.linkup.adapter;
 
-import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +11,17 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
-import com.example.linkup.model.ChatSession;
 import com.example.linkup.model.Message;
 import com.example.linkup.viewModel.UserViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -53,15 +52,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
+        String timestamp = getFormattedTime(message.getTimestamp());
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_SENDER:
-                holder.bindSenderMessage(message);
+                holder.bindSenderMessage(message, timestamp);
                 break;
             case VIEW_TYPE_RECEIVER:
-                holder.bindReceiverMessage(message);
+                holder.bindReceiverMessage(message, timestamp);
                 break;
         }
+
     }
+
 
     @Override
     public int getItemCount() {
@@ -90,19 +92,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.messageTextView);
-            profilePic = itemView.findViewById(R.id.profileImage); // Ensure this ID matches your layout
+            profilePic = itemView.findViewById(R.id.profileImage);
         }
 
-        public void bindSenderMessage(Message message) {
+        public void bindSenderMessage(Message message, String timestamp) {
             profilePic = itemView.findViewById(R.id.profilesender);
             messageText = itemView.findViewById(R.id.senderText);
+            TextView timestamptext = itemView.findViewById(R.id.senderTimestampTextView);
+            timestamptext.setText(timestamp);
             messageText.setText(message.getText());
             loadProfileImage(message.getSenderId());
         }
 
-        public void bindReceiverMessage(Message message) {
+        public void bindReceiverMessage(Message message, String timestamp) {
             profilePic = itemView.findViewById(R.id.profilereceiver);
             messageText = itemView.findViewById(R.id.receiverText);
+            TextView timestamptext = itemView.findViewById(R.id.receiverTimestampTextView);
+            timestamptext.setText(timestamp);
             messageText.setText(message.getText());
             loadProfileImage(message.getSenderId());
         }
@@ -114,6 +120,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
         }
+    }
+    private String getFormattedTime(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
     }
 }
 

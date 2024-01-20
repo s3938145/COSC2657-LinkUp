@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -260,7 +262,7 @@ public class FirebaseService {
                 User user = documentSnapshot.toObject(User.class);
                 if (user != null) {
                     // Create a new User object with updated FCM token
-                    User updatedUser = new User(user.getUserId(), user.getUserRole(), user.getProfileImage(), user.getRmitId(), user.getFullName(), user.getPassword(), user.getEmail(), user.getFriendList(), user.getCourseSchedule(), newToken);
+                    User updatedUser = new User(user.getUserId(), user.getUserRole(), user.getProfileImage(), user.getRmitId(), user.getFullName(), user.getPassword(), user.getEmail(), user.getFriendList(), user.getCourseSchedule(), newToken, false);
 
                     // Write the updated user back to Firestore
                     userDocRef.set(updatedUser)
@@ -283,6 +285,34 @@ public class FirebaseService {
                         .addOnFailureListener(e -> Log.w("TAG", "Failed to update UserRole for user: " + userId));
             }
         }).addOnFailureListener(e -> Log.w("TAG", "Error fetching user document for UserRole check", e));
+    }
+    private boolean hasUserSentRecentMessage(String userId) {
+        // Assume you have a "messages" node in your database
+        DatabaseReference messagesReference = FirebaseDatabase.getInstance().getReference("messages");
+
+        // Assume your message model has a "senderId" field
+        Query recentMessagesQuery = messagesReference.orderByChild("senderId").equalTo(userId).limitToLast(1);
+
+        // Check if there is any recent message from the user
+        final boolean[] hasRecentMessage = {false};
+
+        recentMessagesQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
+                    // If there's any message, consider it as a recent message
+                    hasRecentMessage[0] = true;
+                    break;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors if needed
+            }
+        });
+
+        return hasRecentMessage[0];
     }
 
 

@@ -6,14 +6,24 @@ public class Message {
     private String text;
     private long timestamp;
     private String receiverId;
+    private boolean hasRecentMessage;
+
+    public boolean hasRecentMessage() {
+        return hasRecentMessage;
+    }
+
+    public void setHasRecentMessage(boolean hasRecentMessage) {
+        this.hasRecentMessage = hasRecentMessage;
+    }
 
     public Message() {}
 
-    public Message(String senderId, String receiverID, String text, long timestamp) {
+    public Message(String senderId, String receiverID, String text, long timestamp, boolean hasRecentMessage) {
         this.senderId = senderId;
         this.receiverId = receiverID;
         this.text = text;
         this.timestamp = timestamp;
+        this.hasRecentMessage = false;
     }
 
     public String getSenderId() {

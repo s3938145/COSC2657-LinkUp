@@ -11,16 +11,17 @@ public class User {
     private String fullName;             // User's full name
     private String password;             // User's password (consider storing a hash instead of plain text)
     private String email;                // User's email address
-    private List<String> friendList;  // List of Firestore document IDs representing friends
+    private List<String> friendList;     // List of Firestore document IDs representing friends
     private String courseSchedule;       // URL or reference to the user's course schedule image
     private String fcmToken;
+    private boolean hasRecentMessage;   // New field to indicate whether the user has a recent message
 
     // Default constructor (required for Firebase)
     public User() {
     }
 
     // Constructor with all fields
-    public User(String userId, String userRole,String profileImage, String rmitId, String fullName, String password, String email, List<String> friendList, String courseSchedule, String fcmToken) {
+    public User(String userId, String userRole, String profileImage, String rmitId, String fullName, String password, String email, List<String> friendList, String courseSchedule, String fcmToken, boolean hasRecentMessage) {
         this.userId = userId;
         this.userRole = userRole;
         this.profileImage = profileImage;
@@ -31,13 +32,17 @@ public class User {
         this.friendList = friendList;
         this.courseSchedule = courseSchedule;
         this.fcmToken = fcmToken;
+        this.hasRecentMessage = hasRecentMessage;
     }
 
     // Getters and setters for all fields
     public String getUserId() {
         return userId;
     }
-    public String getUserRole() { return userRole; }
+
+    public String getUserRole() {
+        return userRole;
+    }
 
     public String getProfileImage() {
         return profileImage;
@@ -71,6 +76,14 @@ public class User {
         return fcmToken;
     }
 
+    public boolean hasRecentMessage() {
+        return hasRecentMessage;
+    }
+
+    public void setHasRecentMessage(boolean hasRecentMessage) {
+        this.hasRecentMessage = hasRecentMessage;
+    }
+
+
     // Optionally, override toString(), equals(), and hashCode() methods as needed
 }
-

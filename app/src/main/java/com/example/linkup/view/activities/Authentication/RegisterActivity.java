@@ -100,7 +100,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 email,
                                 new ArrayList<>(),  // Initialize an empty friendList
                                 null,    // Set courseSchedule to null initially
-                                null // Set FCM Token to be null initially
+                                null, // Set FCM Token to be null initially
+                                false
                         );
 
                         // Get a reference to the "users" collection

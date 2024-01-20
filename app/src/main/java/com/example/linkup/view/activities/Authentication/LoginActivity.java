@@ -48,7 +48,6 @@ public class LoginActivity extends AppCompatActivity {
         btnEmailLogin = findViewById(R.id.btnEmailLogin);
         btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
         txtRegister = findViewById(R.id.txtRegister);
-        txtForgotPassword = findViewById(R.id.txtForgotPassword);
 
         firebaseService = new FirebaseService(this);
         firebaseAuth = FirebaseAuth.getInstance();
@@ -83,12 +82,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        txtForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Handle forgot password functionality
-            }
-        });
     }
 
     private void signInWithEmail() {

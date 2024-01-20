@@ -30,4 +30,16 @@
         android:textColor="@color/black"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/senderTimestampTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/senderText"
+        android:layout_alignEnd="@+id/senderText"
+        android:layout_marginTop="-3dp"
+        android:layout_marginEnd="15dp"
+        android:text="Timestamp"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
 </RelativeLayout>
