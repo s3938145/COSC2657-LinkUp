@@ -9,6 +9,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,8 @@ import com.example.linkup.R;
 import com.example.linkup.adapter.MessageAdapter;
 import com.example.linkup.model.ChatSession;
 import com.example.linkup.model.Message;
+import com.example.linkup.utility.GenerateIdUtils;
+import com.example.linkup.viewModel.UserViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -39,12 +42,14 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     ArrayList<Message> m;
 
-    private String receiverUserId;
+    private String chatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_acitivity);
+
+        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         messageEditText = findViewById(R.id.messageEditText);
         sendButton = findViewById(R.id.sendButton);
@@ -53,7 +58,9 @@ public class ChatActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         m = new ArrayList<>();
-        messageAdapter = new MessageAdapter();
+
+        messageAdapter = new MessageAdapter(userViewModel, this);
+
         recyclerView.setAdapter(messageAdapter);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -63,7 +70,6 @@ public class ChatActivity extends AppCompatActivity {
             finish();
         }
 
-        messagesReference = FirebaseDatabase.getInstance().getReference("messages");
 
         String receiverUserId = getIntent().getStringExtra("receiverUserId");
 
@@ -76,7 +82,15 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         }
-        messagesReference.child(getChatKey(currentUser.getUid(), receiverUserId)).addChildEventListener(new ChildEventListener() {
+
+
+        chatId = GenerateIdUtils.generateChatId(currentUser.getUid(), receiverUserId);
+
+        Log.d("Chat ID", chatId);
+
+        messagesReference = FirebaseDatabase.getInstance().getReference("messages").child(chatId);
+        messagesReference.addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
                 if (snapshot.exists()) {
@@ -122,11 +136,8 @@ public class ChatActivity extends AppCompatActivity {
             String senderUserId = currentUser.getUid();
             Message message = new Message(senderUserId, receiverUserId, messageText, System.currentTimeMillis());
 
-            // Get the chat key based on user IDs
-            String chatKey = getChatKey(senderUserId, receiverUserId);
+            messagesReference.push().setValue(message);
 
-            // Update the specific chat session in the database
-            messagesReference.child(chatKey).push().setValue(message);
             messageEditText.setText("");
             Log.d("ChatActivity", "Sending message: " + messageText);
         }
