@@ -1,5 +1,6 @@
 package com.example.linkup.profile;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import com.example.linkup.R;
 import com.example.linkup.service.FirebaseService;
 import com.example.linkup.utility.ImageUtils;
 import com.example.linkup.view.activities.MainActivity;
+import com.example.linkup.view.fragments.UserProfileFragment;
 import com.example.linkup.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,6 +47,8 @@ public class UpdateProfile extends AppCompatActivity {
     private UserViewModel userViewModel;
     private FirebaseService firebaseService;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ProgressDialog progressDialog;
+    private String actualCourseSchedule;
 
     // UI Components
     ImageView profilePicker;
@@ -59,6 +64,9 @@ public class UpdateProfile extends AppCompatActivity {
         // Initialize FirebaseService and ViewModel
         firebaseService = new FirebaseService(this);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        // Initiate ProgressDialog
+        progressDialog = new ProgressDialog(this);
 
         // Initialize UI components
         etName = findViewById(R.id.etName);
@@ -88,19 +96,32 @@ public class UpdateProfile extends AppCompatActivity {
             String currentUserId = currentUser.getUid();
             userViewModel.getUserLiveData(currentUserId).observe(this, user -> {
                 if (user != null) {
-                    imageUri = Uri.parse(user.getProfileImage());
-                    etName.setText(user.getFullName());
-                    etEmail.setText(user.getEmail());
-                    etID.setText(user.getRmitId());
-                    coursePicker.setText(user.getCourseSchedule());
-
+                    // Check and handle profile image
                     if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                        ImageUtils.loadImageAsync(user.getProfileImage(),profilePicker);
+                        ImageUtils.loadImageAsync(user.getProfileImage(), profilePicker);
+                    } else {
+                        profilePicker.setImageResource(R.drawable.add);
                     }
+                    imageUri = user.getProfileImage() != null ? Uri.parse(user.getProfileImage()) : null;
+
+                    // Set text fields
+                    etName.setText(user.getFullName() != null ? user.getFullName() : "");
+                    etEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+                    etID.setText(user.getRmitId() != null ? user.getRmitId() : "");
+
+                    // Check and handle course schedule
+                    if (user.getCourseSchedule() != null && !user.getCourseSchedule().isEmpty()) {
+                        coursePicker.setText("A Course Schedule already exist");
+                    } else {
+                        // Handle the case where course schedule is null or empty
+                        coursePicker.setText("No course schedule available");
+                    }
+                    courseImageUri = user.getCourseSchedule() != null ? Uri.parse(user.getCourseSchedule()) : null;
                 }
             });
         }
     }
+
 
     private void openFileChooserForProfile() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -126,7 +147,7 @@ public class UpdateProfile extends AppCompatActivity {
                 // Handle course schedule image selection
                 courseImageUri = data.getData();
                 // Update the coursePicker TextView or ImageView as per your UI
-                 coursePicker.setText(courseImageUri.toString());
+                 coursePicker.setText("A new Course Schedule is set");
             }
         }
     }
@@ -135,6 +156,10 @@ public class UpdateProfile extends AppCompatActivity {
 
 
     private void fetchProfile() {
+        progressDialog.setMessage("Updating profile...");
+        progressDialog.setCancelable(false); // Prevent dismiss by tapping outside of the dialog
+        progressDialog.show();
+
         String name = etName.getText().toString();
         String id = etID.getText().toString();
         String email = etEmail.getText().toString();
@@ -206,15 +231,17 @@ public class UpdateProfile extends AppCompatActivity {
                 }).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(UpdateProfile.this, "updated", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(UpdateProfile.this, MainActivity.class);
+                        progressDialog.dismiss();
+                        Toast.makeText(UpdateProfile.this, "Profile Updated", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(UpdateProfile.this, UserProfileFragment.class);
                         startActivity(intent);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(UpdateProfile.this, "failed", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        Toast.makeText(UpdateProfile.this, "Profile Update Failed", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

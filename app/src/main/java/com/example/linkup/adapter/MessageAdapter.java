@@ -83,13 +83,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyItemInserted(messages.size() - 1);
     }
 
-    public void setMessages(Map<String, Message> messageMap) {
-        Log.d("MessageAdapter", "setMessages called with " + messageMap.size() + " messages");
-        messages.clear();
-        messages.addAll(new ArrayList<>(messageMap.values()));
-        notifyDataSetChanged();
-    }
-
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         ImageView profilePic;
         TextView messageText;
@@ -98,7 +91,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             super(itemView);
             messageText = itemView.findViewById(R.id.messageTextView);
             profilePic = itemView.findViewById(R.id.profileImage); // Ensure this ID matches your layout
-
         }
 
         public void bindSenderMessage(Message message) {
@@ -123,7 +115,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             });
         }
     }
-
 }
 
 
