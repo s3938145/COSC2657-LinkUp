@@ -13,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.linkup.R;
+import com.example.linkup.model.ChatSession;
 import com.example.linkup.model.Message;
 import com.example.linkup.viewModel.UserViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,6 +22,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -81,6 +83,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyItemInserted(messages.size() - 1);
     }
 
+    public void setMessages(Map<String, Message> messageMap) {
+        Log.d("MessageAdapter", "setMessages called with " + messageMap.size() + " messages");
+        messages.clear();
+        messages.addAll(new ArrayList<>(messageMap.values()));
+        notifyDataSetChanged();
+    }
+
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         ImageView profilePic;
         TextView messageText;
@@ -89,6 +98,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             super(itemView);
             messageText = itemView.findViewById(R.id.messageTextView);
             profilePic = itemView.findViewById(R.id.profileImage); // Ensure this ID matches your layout
+
         }
 
         public void bindSenderMessage(Message message) {
@@ -113,6 +123,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             });
         }
     }
+
 }
 
 
