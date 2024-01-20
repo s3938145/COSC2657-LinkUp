@@ -18,7 +18,9 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.linkup.R;
 import com.example.linkup.profile.UpdateProfile;
+import com.example.linkup.service.FirebaseService;
 import com.example.linkup.utility.ImageUtils;
+import com.example.linkup.view.activities.Authentication.LoginActivity;
 import com.example.linkup.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,8 +37,9 @@ public class UserProfileFragment extends Fragment {
     private String currentId;
     ImageView profileIcon;
     TextView etName, etID, etEmail, courseSchedule;
-    Button button;
+    Button editButton, signOutButton;
     UserViewModel userViewModel; // Add UserViewModel
+    FirebaseService firebaseService;
 
     @Nullable
     @Override
@@ -49,14 +52,19 @@ public class UserProfileFragment extends Fragment {
         etID = view.findViewById(R.id.tv_id_f1);
         etEmail = view.findViewById(R.id.tv_email);
         courseSchedule = view.findViewById(R.id.tv_course_schedule);
-        button = view.findViewById(R.id.btn_edit);
+        editButton = view.findViewById(R.id.btn_edit);
+        signOutButton = view.findViewById(R.id.btn_sign_out);
 
         // Set up click listeners
         courseSchedule.setOnClickListener(v -> navigateToShowCourseSchedule());
-        button.setOnClickListener(v -> edit());
+        editButton.setOnClickListener(v -> edit());
+        signOutButton.setOnClickListener(v -> signOut());
 
         // Initialize UserViewModel
         userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
+
+        // Initialize FirebaseService
+        firebaseService = new FirebaseService(getContext());
 
         return view;
     }
@@ -88,6 +96,12 @@ public class UserProfileFragment extends Fragment {
 
     private void edit() {
         Intent intent = new Intent(getActivity(), UpdateProfile.class);
+        startActivity(intent);
+    }
+
+    private void signOut() {
+        firebaseService.signOutUser();
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
         startActivity(intent);
     }
 

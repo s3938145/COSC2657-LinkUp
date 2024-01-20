@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,49 +8,82 @@
 
     <EditText
         android:id="@+id/editTextEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email"/>
+        android:layout_width="0dp"
+        android:layout_height="@dimen/view_height"
+        android:hint="Email"
+        android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/editTextPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <EditText
         android:id="@+id/editTextPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextEmail"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/view_height"
         android:hint="Password"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toTopOf="@id/btnEmailLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextEmail" />
 
     <Button
         android:id="@+id/btnEmailLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/editTextPassword"
-        android:layout_marginTop="16dp"
-        android:text="Login with Email"/>
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/view_height"
+        android:text="Login with Email"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toTopOf="@id/btnGoogleLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextPassword" />
 
     <Button
         android:id="@+id/btnGoogleLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnEmailLogin"
-        android:layout_marginTop="16dp"
-        android:text="Login with Google"/>
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/view_height"
+        android:text="Login with Google"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toTopOf="@id/txtRegister"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnEmailLogin" />
 
     <TextView
         android:id="@+id/txtRegister"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/btnGoogleLogin"
-        android:layout_marginTop="16dp"
-        android:text="Don't have an account? Register here"/>
+        android:layout_height="@dimen/view_height"
+        android:text="Don't have an account? Register here"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toTopOf="@id/txtForgotPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnGoogleLogin" />
 
     <TextView
         android:id="@+id/txtForgotPassword"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/txtRegister"
-        android:layout_marginTop="16dp"
-        android:text="Forgot Password?"/>
+        android:layout_height="@dimen/view_height"
+        android:text="Forgot Password?"
+        android:layout_marginBottom="@dimen/view_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtRegister" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+

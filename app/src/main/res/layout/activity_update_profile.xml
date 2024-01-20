@@ -16,6 +16,7 @@
         android:textAlignment="center"
         android:textColor="@color/design_default_color_error"
         android:textSize="@dimen/text_size_title"
+        android:layout_marginHorizontal="@dimen/view_margin"
         app:layout_constraintBottom_toTopOf="@+id/profilePicker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,6 +56,7 @@
         android:hint="Name"
         android:inputType="textPersonName"
         android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/groupAllViews" />
@@ -67,6 +69,7 @@
         android:hint="Email"
         android:inputType="textEmailAddress"
         android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etName" />
@@ -79,6 +82,7 @@
         android:hint="RMIT ID"
         android:inputType="textPersonName"
         android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etEmail" />
@@ -90,13 +94,14 @@
         android:ems="10"
         android:text="Upload Course Schedule"
         android:textSize="@dimen/text_size_title_2"
+        android:layout_marginHorizontal="@dimen/view_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etId" />
 
     <Button
         android:id="@+id/btnSave"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/button_width"
         android:layout_height="wrap_content"
         android:text="Save Profile"
         app:layout_constraintEnd_toEndOf="parent"
