@@ -1,5 +1,6 @@
 package com.example.linkup.profile;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +45,7 @@ public class UpdateProfile extends AppCompatActivity {
     private UserViewModel userViewModel;
     private FirebaseService firebaseService;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ProgressDialog progressDialog;
 
     // UI Components
     ImageView profilePicker;
@@ -59,6 +61,8 @@ public class UpdateProfile extends AppCompatActivity {
         // Initialize FirebaseService and ViewModel
         firebaseService = new FirebaseService(this);
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+
+        progressDialog = new ProgressDialog(this);
 
         // Initialize UI components
         etName = findViewById(R.id.etName);
@@ -88,19 +92,33 @@ public class UpdateProfile extends AppCompatActivity {
             String currentUserId = currentUser.getUid();
             userViewModel.getUserLiveData(currentUserId).observe(this, user -> {
                 if (user != null) {
-                    imageUri = Uri.parse(user.getProfileImage());
-                    etName.setText(user.getFullName());
-                    etEmail.setText(user.getEmail());
-                    etID.setText(user.getRmitId());
-                    coursePicker.setText(user.getCourseSchedule());
-
+                    // Check and handle profile image
                     if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                        ImageUtils.loadImageAsync(user.getProfileImage(),profilePicker);
+                        ImageUtils.loadImageAsync(user.getProfileImage(), profilePicker);
+                    } else {
+                        // Handle the case where profile image is null or empty
+                        profilePicker.setImageResource(R.drawable.create_post); // Replace with your default image resource
                     }
+                    imageUri = user.getProfileImage() != null ? Uri.parse(user.getProfileImage()) : null;
+
+                    // Set text fields
+                    etName.setText(user.getFullName() != null ? user.getFullName() : "");
+                    etEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+                    etID.setText(user.getRmitId() != null ? user.getRmitId() : "");
+
+                    // Check and handle course schedule
+                    if (user.getCourseSchedule() != null && !user.getCourseSchedule().isEmpty()) {
+                        coursePicker.setText(user.getCourseSchedule());
+                    } else {
+                        // Handle the case where course schedule is null or empty
+                        coursePicker.setText("No course schedule available");
+                    }
+                    courseImageUri = user.getCourseSchedule() != null ? Uri.parse(user.getCourseSchedule()) : null;
                 }
             });
         }
     }
+
 
     private void openFileChooserForProfile() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -135,6 +153,10 @@ public class UpdateProfile extends AppCompatActivity {
 
 
     private void fetchProfile() {
+        progressDialog.setMessage("Updating profile...");
+        progressDialog.setCancelable(false); // Prevent dismiss by tapping outside of the dialog
+        progressDialog.show();
+
         String name = etName.getText().toString();
         String id = etID.getText().toString();
         String email = etEmail.getText().toString();
@@ -183,6 +205,7 @@ public class UpdateProfile extends AppCompatActivity {
 
 
     private void updateProfile(String profile, String name, String id, String email, String courses) {
+
         FirebaseUser user = firebaseService.getCurrentUser();
         String currentUserId = user.getUid();
 
@@ -206,7 +229,8 @@ public class UpdateProfile extends AppCompatActivity {
                 }).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(UpdateProfile.this, "updated", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        Toast.makeText(UpdateProfile.this, "Profile Updated", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(UpdateProfile.this, MainActivity.class);
                         startActivity(intent);
                     }
@@ -214,7 +238,8 @@ public class UpdateProfile extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(UpdateProfile.this, "failed", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        Toast.makeText(UpdateProfile.this, "Profile Failed to Update", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
